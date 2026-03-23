@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>মডার্ণ স্পোর্টিং ক্লাব</title>
+    <!-- ফন্ট ও স্টাইল -->
+    <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { 
+            --primary-color: #00695c; 
+            --secondary-color: #004d40; 
+            --accent-color: #ff8f00; 
+            --bg-color: #fff9c4; 
+            --text-color: #263238; 
+            --white: #ffffff; 
+            --header-bg: #e0f2f1;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            font-family: 'Hind Siliguri', sans-serif; 
+            background-color: var(--bg-color); 
+            background-image: radial-gradient(#ffe082 1px, transparent 1px);
+            background-size: 20px 20px;
+            color: var(--text-color); 
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ================= HEADER ================= */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, #ffffff, var(--header-bg));
+            padding: 15px 5%;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            flex-wrap: wrap;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .logo {
+            width: 70px; height: 70px; border-radius: 50%;
+            border: 3px solid var(--primary-color); object-fit: cover; background: #fff;
+        }
+        .club-info h1 { color: #d32f2f; font-size: 24px; font-weight: 700; margin-bottom: 2px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
+        .club-info p { color: var(--text-color); font-size: 13px; font-weight: 600; line-height: 1.3; }
+        .login-btn {
+            background: var(--primary-color); color: white; padding: 8px 20px;
+            border: none; border-radius: 30px; font-size: 15px; font-weight: bold;
+            cursor: pointer; box-shadow: 0 4px 6px rgba(0,105,92,0.3); transition: 0.3s;
+        }
+        .login-btn:hover { background: #004d40; transform: translateY(-2px); }
+
+        /* ================= LANDING PAGE ================= */
+        #landingPage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; }
+        .durga-container { margin-bottom: 30px; animation: float 4s ease-in-out infinite; }
+        .durga-img {
+            width: 250px; height: auto; border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(211, 47, 47, 0.3); border: 5px solid #ffca28;
+            background: #fff;
+        }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
+        
+        .blink-btn {
+            background: #d32f2f; color: white; padding: 15px 40px; font-size: 22px; font-weight: bold;
+            border: 2px solid #ffeb3b; border-radius: 50px; cursor: pointer;
+            animation: blinker 1.5s linear infinite; margin-bottom: 30px; text-decoration: none; display: inline-block;
+        }
+        @keyframes blinker { 50% { opacity: 0.7; box-shadow: 0 0 20px #d32f2f; transform: scale(1.05); } }
+
+        /* ================= FOOTER ================= */
+        .footer { background: #263238; color: white; padding: 25px 20px 15px; text-align: center; width: 100%; margin-top: auto; }
+        .footer-address { font-size: 15px; margin-bottom: 10px; color: #b0bec5; }
+        .footer-contact { font-size: 16px; margin-bottom: 15px; color: #ffcc80; }
+        .fb-link { display: inline-block; color: #1877f2; font-size: 30px; margin-bottom: 15px; transition: 0.3s; background: white; border-radius: 50%; width: 35px; height: 35px; line-height: 35px; }
+        .copyright { border-top: 1px solid #455a64; padding-top: 10px; font-size: 12px; color: #90a4ae; }
+
+        /* ================= LOGIN MODAL ================= */
+        #loginModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; }
+        .btn-submit { width: 100%; padding: 12px; background: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 18px; font-weight: 600; margin-top: 10px; cursor: pointer;}
+        input { width: 100%; padding: 10px; border: 1px solid #cfd8dc; border-radius: 6px; font-family: 'Hind Siliguri', sans-serif; font-size: 16px; }
+
+        /* Mobile specific adjustments */
+        @media (max-width: 768px) {
+            .header { flex-direction: column; text-align: center; gap: 10px; }
+            .header-left { flex-direction: column; }
+            .club-info h1 { font-size: 20px; }
+            .login-btn { position: absolute; top: 15px; right: 15px; padding: 5px 15px; font-size: 14px; }
+            .logo { width: 60px; height: 60px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================= HEADER ================= -->
+    <header class="header">
+        <div class="header-left">
+            <img src="https://i.ibb.co/6Lkgrt8/1774204481519.jpg" 
+                 onerror="this.src='https://ui-avatars.com/api/?name=MSC&background=00695c&color=fff&font-size=0.4&rounded=true'" 
+                 alt="ক্লাবের লোগো" class="logo">
+            
+            <div class="club-info">
+                <h1>মডার্ণ স্পোর্টিং ক্লাব</h1>
+                <p>স্থাপিত - 1985</p>
+                <p>গভঃ রেজিঃ নং-S0035658 | দর্পন আইডি-WB/2023/0359221</p>
+            </div>
+        </div>
+        
+        <button onclick="document.getElementById('loginModal').style.display='flex'" class="login-btn">
+            <i class="fas fa-sign-in-alt"></i> লগিন
+        </button>
+    </header>
+
+    <!-- ================= LANDING PAGE SECTION ================= -->
+    <div id="landingPage">
+        <div class="durga-container">
+            <img src="https://i.ibb.co/7NK4yb4W/Picsart-26-03-23-00-10-19-865.png" 
+                 onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Durga_Puja_in_Kolkata.jpg/640px-Durga_Puja_in_Kolkata.jpg'" 
+                 alt="মা দুর্গা" class="durga-img">
+        </div>
+
+        <!-- Redirects to game.html directly on click -->
+        <button onclick="window.location.href='game.html'" class="blink-btn">
+            🎨 অঙ্কণ প্রতিযোগিতা
+        </button>
+    </div>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="footer">
+        <div style="max-width: 800px; margin: 0 auto;">
+            <div class="footer-address">
+                <i class="fas fa-map-marker-alt"></i> ইটিন্ডা রোড, ধলতিথা, বসিরহাট ২৩ নং ওয়ার্ড,<br>উত্তর ২৪ পরগণা, পিন-৭৪৩৪১২
+            </div>
+            
+            <div class="footer-contact">
+                <i class="fas fa-phone-alt"></i> যোগাযোগ: ৯৮০০২১৬৬২১ <br>
+                <i class="fas fa-envelope"></i> ইমেল: modernsportingclub@gmail.com
+            </div>
+
+            <a href="https://www.fb.com/dhaltithamsc" target="_blank" class="fb-link" title="আমাদের ফেসবুক পেজ">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+
+            <div class="copyright">
+                Design, Developed by Modern Sporting Club © ২০২৬
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================= LOGIN MODAL ================= -->
+    <div id="loginModal">
+        <div style="background:white; padding:30px; border-radius:10px; width:85%; max-width:300px; text-align:center; position:relative;">
+            <button onclick="document.getElementById('loginModal').style.display='none'" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:20px; cursor:pointer;">✕</button>
+            <h2 style="color:var(--primary-color); margin-bottom:15px;">লগিন</h2>
+            
+            <input type="text" id="loginUsername" placeholder="Username" style="text-align:center; font-size:18px; margin-bottom:10px; width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;" autocomplete="off">
+            <input type="password" id="loginPassword" placeholder="Password" style="text-align:center; font-size:18px; letter-spacing:3px; margin-bottom:15px; width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+            
+            <button class="btn-submit" onclick="checkLogin('judges')" style="background:#1976d2; margin-bottom:10px;">Judges Login</button>
+            <button class="btn-submit" onclick="checkLogin('member')" style="background:#388e3c; margin-bottom:10px;">Member Login</button>
+        </div>
+    </div>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script>
+    const SafeSession = (function(){
+        try {
+            const ss = window.sessionStorage;
+            const x = '__t__';
+            ss.setItem(x, x);
+            ss.removeItem(x);
+            return ss;
+        } catch(e) {
+            return {
+                _data: {},
+                getItem: function(k) { return this._data[k] || null; },
+                setItem: function(k, v) { this._data[k] = String(v); },
+                removeItem: function(k) { delete this._data[k]; },
+                clear: function() { this._data = {}; }
+            };
+        }
+    })();
+
+    function checkLogin(roleType) {
+        const user = document.getElementById('loginUsername').value.trim().toLowerCase();
+        const pass = document.getElementById('loginPassword').value;
+
+        if (roleType === 'judges' && user === 'judges' && pass === '12349') {
+            SafeSession.setItem('role', 'admin'); // Set role for game.html
+            window.location.href = 'game.html';   // Redirect to App
+        } else if (roleType === 'member' && user === 'member' && pass === '12349') {
+            SafeSession.setItem('role', 'staff'); // Set role for game.html
+            window.location.href = 'game.html';   // Redirect to App
+        } else {
+            alert('ভুল ইউজারনেম বা পাসওয়ার্ড!');
+        }
+    }
+    </script>
+</body>
+</html>
