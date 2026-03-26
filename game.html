@@ -368,6 +368,13 @@
                 <option value="group_j">বিভাগ-জ</option>
              </select>
         </div>
+        
+       
+
+<div class="search-box" style="margin-top:10px;">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="resSearch" placeholder="ফলাফলে প্রতিযোগীর নাম খুঁজুন..." onkeyup="renderResults()">
+</div>
         <div id="resTitle" style="text-align:center; font-weight:bold; margin:10px 0; color:var(--primary-color);"></div>
         <table style="width:100%">
             <thead><tr><th>ক্রম</th><th>নাম</th><th>ফলাফল</th></tr></thead>
@@ -1142,8 +1149,10 @@ else if(action === 'editFullPlayer') {
     async function saveTimerData() { let val=(timerData.game==='glass_circle')?`${document.getElementById('timerDisplay').innerText} | ${document.getElementById('waterAmount').value||0}ml`:document.getElementById('finalScoreInput').value; if(!val)return alert("ফলাফল দিন"); await pushData('updateScore',{id:timerData.id,gameCode:timerData.game,score:val}); closeTimer(); renderMgmt(); }
     function closeTimer() { clearInterval(timerInt); document.getElementById('timerModal').style.display='none'; }
 
-   function renderResults() {
+  function renderResults() {
         const game = document.getElementById('resGameSelector').value;
+        // নিচে searchVal লাইনটি যোগ করা হয়েছে
+        const searchVal = document.getElementById('resSearch') ? document.getElementById('resSearch').value.toLowerCase() : '';
         const tbody = document.getElementById('resBody');
         tbody.innerHTML = '';
         document.getElementById('artResSubFilterDiv').style.display = (game === 'art_comp') ? 'block' : 'none';
@@ -1152,10 +1161,11 @@ else if(action === 'editFullPlayer') {
         const conf = gameConfig[game];
         const currentRole = SafeSession.getItem('role');
         
+        // ব্র্যাকেট এবং রিটার্নের ভুল ঠিক করা হয়েছে
         let list = participants.filter(p => {
             const hasScore = p.scores && p.scores[game];
             const hasImage = (game === 'art_comp' && p.artImage);
-            return hasScore || hasImage;
+            return (hasScore || hasImage) && p.name.toLowerCase().includes(searchVal); 
         });
 
         if(game === 'art_comp') {
@@ -1741,7 +1751,9 @@ async function generateDrawingCertificate(p, rank) {
     }
 }
 // ========================================================
-    
+    window.addEventListener('DOMContentLoaded', () => {
+    fetchData().catch(e => console.log("Background fetch error:", e));
+});
 initApp();
 let currentFullEditId = null;
 
