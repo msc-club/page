@@ -67,6 +67,7 @@
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-15px); } 100% { transform: translateY(0px); } }
         
         .blink-btn {
+        font-family: 'Hind Siliguri', sans-serif;
             background: #d32f2f; color: white; padding: 15px 40px; font-size: 22px; font-weight: bold;
             border: 2px solid #ffeb3b; border-radius: 50px; cursor: pointer;
             animation: blinker 1.5s linear infinite; margin-bottom: 20px; text-decoration: none; display: inline-block;
@@ -125,6 +126,29 @@
             .logo { width: 60px; height: 60px; }
             .highlight-blink-text { font-size: 14px; padding: 10px 15px; }
         }
+        
+        .cricket-btn {
+        font-family: 'Hind Siliguri', sans-serif;
+    background: var(--primary-color); /* ক্লাবের সবুজ থিম কালার */
+    color: white; 
+    padding: 15px 40px; 
+    font-size: 22px; 
+    font-weight: bold;
+    border: 2px solid #ffca28; 
+    border-radius: 50px; 
+    cursor: pointer;
+    margin-bottom: 20px; 
+    text-decoration: none; 
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 105, 92, 0.4);
+}
+
+.cricket-btn:hover { 
+    background: var(--secondary-color); 
+    transform: scale(1.05); 
+    box-shadow: 0 6px 15px rgba(0, 105, 92, 0.6);
+}
     </style>
 </head>
 <body>
@@ -157,7 +181,9 @@
         <button onclick="window.location.href='game.html'" class="blink-btn">
             🎨 অঙ্কণ প্রতিযোগিতা
         </button>
-
+<button onclick="window.location.href='TM4.html'" class="cricket-btn">
+    🏏 ক্রিকেট টুর্ণামেন্ট
+</button>
         <div class="highlight-blink-text">
             আগামী বছর প্রতিযোগীতার তারিখ ১২-ই এপ্রিল,২০২৭ | সোমবার | দুপুর ২:৩০ নাগাদ
         </div>
