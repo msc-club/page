@@ -24,14 +24,12 @@
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        #receipt-view { display: none; }
         .a4-container { width: 210mm; min-height: 297mm; margin: 0 auto; background: white; padding: 20mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
         @media print {
             body { background: white; }
             #app-view, #admin-view, #payment-redirect-view { display: none !important; }
-            #receipt-view { display: block !important; }
             .a4-container { width: 100%; min-height: auto; margin: 0; padding: 0; box-shadow: none; }
-            #print-action-bar { display: none !important; }
+            .print-action-bar { display: none !important; }
             @page { size: A4; margin: 15mm; }
         }
 
@@ -69,7 +67,7 @@
     </div>
 
     <!-- HEADER -->
-    <header class="bg-white shadow-sm sticky top-0 z-40">
+    <header class="bg-white shadow-sm sticky top-0 z-40" id="main-header">
         <div class="max-w-7xl mx-auto px-4">
             <div class="flex items-center justify-between py-3">
                 <div class="flex items-center gap-2">
@@ -77,7 +75,7 @@
                     <div>
                         <h1 class="text-xl font-bold text-gray-900 tracking-tight leading-none">Modern Sporting Club</h1>
                         <span class="text-[10px] font-bold text-gray-500 tracking-widest uppercase flex items-center gap-1">
-                            ESTD 1985 • Itinda Road,Dhaltirha,Basirhat,N 24 Pgs <i id="sync-status" class="ph-fill ph-cloud-check sync-offline text-lg ml-1" title="Cloud Sync Status"></i>
+                            ESTD 1985 • <i id="sync-status" class="ph-fill ph-cloud-check sync-offline text-lg ml-1" title="Cloud Sync Status"></i>
                         </span>
                     </div>
                 </div>
@@ -170,7 +168,7 @@
         <!-- SCHEDULED TAB -->
         <section id="pub-tab-scheduled" class="pub-tab-content hidden">
             <div class="glass-card rounded-2xl p-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2"><i class="ph ph-calendar-check mr-2 text-emerald-600"></i>Tournament Fixtures</h2>
+                <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2"><i class="ph ph-calendar-check mr-2 text-emerald-600"></i>Tournament Fixtures & Results</h2>
                 <div id="public-fixtures-list" class="space-y-4"></div>
             </div>
         </section>
@@ -491,9 +489,9 @@
         </div>
     </div>
     
-    <!-- PDF RECEIPT VIEW -->
-    <div id="receipt-view" class="min-h-screen bg-gray-200 py-8 px-4">
-        <div id="print-action-bar" class="max-w-[210mm] mx-auto mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow">
+    <!-- PDF REGISTRATION RECEIPT VIEW -->
+    <div id="receipt-view" class="hidden min-h-screen bg-gray-200 py-8 px-4">
+        <div class="print-action-bar max-w-[210mm] mx-auto mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow">
             <button onclick="goBackToApp()" class="text-gray-600 font-bold hover:text-black flex items-center gap-1"><i class="ph ph-arrow-left"></i> Back</button>
             <button onclick="window.print()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-emerald-700"><i class="ph ph-printer"></i> Print / Save PDF</button>
         </div>
@@ -530,14 +528,64 @@
         </div>
     </div>
 
+    <!-- PDF MATCH SUMMARY VIEW -->
+    <div id="summary-view" class="hidden min-h-screen bg-gray-200 py-8 px-4">
+        <div class="print-action-bar max-w-[210mm] mx-auto mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow">
+            <button onclick="goBackToAppFromSummary()" class="text-gray-600 font-bold hover:text-black flex items-center gap-1"><i class="ph ph-arrow-left"></i> Back</button>
+            <button onclick="window.print()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-indigo-700"><i class="ph ph-printer"></i> Print / Download PDF</button>
+        </div>
+        <div class="a4-container font-sans border border-gray-300 bg-white">
+            <div class="text-center mb-6 pb-4 border-b-2 border-gray-800">
+                <h1 class="text-3xl font-black tracking-wider mb-1 uppercase text-gray-900">Modern Sporting Club</h1>
+                <p class="text-sm font-semibold text-gray-600 tracking-widest uppercase">Official Match Summary</p>
+            </div>
+            
+            <div class="text-center mb-8">
+                <div id="s-stage" class="inline-block bg-gray-200 text-gray-800 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest mb-4">Stage</div>
+                <div class="flex justify-center items-center gap-4 text-2xl font-black uppercase">
+                    <span id="s-team1-name" class="text-indigo-800">TEAM 1</span>
+                    <span class="text-gray-400 text-lg">VS</span>
+                    <span id="s-team2-name" class="text-emerald-800">TEAM 2</span>
+                </div>
+                <div id="s-result" class="mt-4 text-lg font-bold text-gray-800 bg-gray-100 py-2 rounded-lg inline-block px-6 border border-gray-300 shadow-sm">WINNER WIN BY RUNS</div>
+                <div class="mt-4 text-base font-bold text-amber-700 uppercase flex items-center justify-center gap-2">
+                    <i class="ph-fill ph-trophy text-xl"></i> Man of the Match: <span id="s-mom" class="text-black bg-amber-100 px-3 py-1 rounded shadow-sm border border-amber-200">PLAYER NAME</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-8">
+                <!-- Team 1 Scorecard -->
+                <div>
+                    <h3 id="s-t1-head" class="font-bold text-lg mb-3 pb-2 border-b-2 border-indigo-200 text-indigo-900 uppercase">Team 1</h3>
+                    <table class="w-full text-sm text-left">
+                        <thead><tr class="text-gray-500 border-b border-gray-200"><th class="pb-2">Player</th><th class="pb-2 text-center">Runs</th><th class="pb-2 text-center">Wkts</th></tr></thead>
+                        <tbody id="s-t1-players"></tbody>
+                    </table>
+                </div>
+                <!-- Team 2 Scorecard -->
+                <div>
+                    <h3 id="s-t2-head" class="font-bold text-lg mb-3 pb-2 border-b-2 border-emerald-200 text-emerald-900 uppercase">Team 2</h3>
+                    <table class="w-full text-sm text-left">
+                        <thead><tr class="text-gray-500 border-b border-gray-200"><th class="pb-2">Player</th><th class="pb-2 text-center">Runs</th><th class="pb-2 text-center">Wkts</th></tr></thead>
+                        <tbody id="s-t2-players"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="mt-12 text-center text-xs font-bold text-gray-400 uppercase border-t pt-4">
+                System Generated Official Document
+            </div>
+        </div>
+    </div>
+
     <!-- Login Modal -->
     <div id="loginModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl relative">
             <button onclick="hideLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800"><i class="ph ph-x-bold text-xl"></i></button>
             <h2 class="text-2xl font-bold mb-6 text-center">Back Office Login</h2>
             <div class="space-y-4">
-                <div class="input-group"><label>Username</label><input type="text" id="login-user" class="input-field" placeholder="ইউজার নেম"></div>
-                <div class="input-group"><label>Password</label><input type="password" id="login-pass" class="input-field" placeholder="পাসওয়ার্ড"></div>
+                <div class="input-group"><label>Username</label><input type="text" id="login-user" class="input-field" placeholder="admin"></div>
+                <div class="input-group"><label>Password</label><input type="password" id="login-pass" class="input-field" placeholder="admin"></div>
                 <button onclick="performLogin()" class="w-full bg-gray-900 text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition">Login</button>
             </div>
         </div>
@@ -757,7 +805,10 @@
                 document.getElementById('r-qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=REG:${data.regNo}`;
                 document.getElementById('r-tdate').innerText = new Date(State.settings.date).toLocaleString();
                 
-                document.getElementById('payment-redirect-view').classList.add('hidden'); document.getElementById('receipt-view').style.display = 'block';
+                document.getElementById('payment-redirect-view').classList.add('hidden'); 
+                document.getElementById('receipt-view').style.display = 'block';
+                document.getElementById('main-header').classList.add('hidden'); // Hide header when printing receipt
+                
                 document.getElementById('registrationForm').reset(); State.formPlayers = Array(7).fill(''); renderPlayersForm('reg'); State.pendingRegistration = null;
                 
                 document.getElementById('upi-verify-box').classList.add('hidden');
@@ -765,7 +816,24 @@
             }, 2000); 
         };
         
-        window.goBackToApp = function() { document.getElementById('receipt-view').style.display = 'none'; document.getElementById('public-view').classList.remove('hidden'); switchTab('public', 'entry'); window.scrollTo(0,0); };
+        window.goBackToApp = function() { 
+            document.getElementById('receipt-view').style.display = 'none'; 
+            document.getElementById('main-header').classList.remove('hidden');
+            document.getElementById('public-view').classList.remove('hidden'); 
+            switchTab('public', 'entry'); 
+            window.scrollTo(0,0); 
+        };
+
+        window.goBackToAppFromSummary = function() {
+            document.getElementById('summary-view').classList.add('hidden');
+            document.getElementById('main-header').classList.remove('hidden');
+            if (State.viewMode === 'admin') {
+                document.getElementById('admin-view').classList.remove('hidden');
+            } else {
+                document.getElementById('public-view').classList.remove('hidden');
+            }
+            window.scrollTo(0,0);
+        };
 
         // TEAM MANAGEMENT (Admin)
         function renderTeamsTable() {
@@ -830,6 +898,7 @@
             document.getElementById('r-tdate').innerText = new Date(State.settings.date).toLocaleString();
             
             document.getElementById('admin-view').classList.add('hidden');
+            document.getElementById('main-header').classList.add('hidden');
             document.getElementById('receipt-view').style.display = 'block';
             window.scrollTo(0,0);
         };
@@ -876,6 +945,10 @@
                     <div>
                         <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded">${m.stage}</span>
                         <div class="font-bold text-lg mt-1">${m.team1.name} <span class="text-red-500 font-black text-sm mx-1">VS</span> ${m.team2.name}</div>
+                        ${m.status === 'Completed' ? `
+                            <div class="mt-2 text-sm font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded inline-block border border-emerald-100">${m.resultStr || 'Completed'}</div>
+                            <div class="text-xs font-bold text-amber-600 mt-1"><i class="ph-fill ph-trophy"></i> MoM: ${m.mom || 'N/A'}</div>
+                        ` : ''}
                     </div>
                     <div class="flex flex-col items-end gap-2">
                         <span class="block text-sm font-bold ${m.status === 'Live' ? 'text-red-600 animate-pulse' : 'text-emerald-600'}">${m.status}</span>
@@ -888,12 +961,13 @@
                             ${m.status === 'Live' ? `
                             <button onclick="resumeScore('${m.id}')" class="bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow hover:bg-red-700 transition animate-pulse">Resume Live Match</button>
                             ` : ''}
+
+                            ${m.status === 'Completed' ? `
+                            <button onclick="openMatchSummary('${m.id}')" class="bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm hover:bg-indigo-200 transition flex items-center gap-1" title="Download Summary"><i class="ph ph-download-simple"></i> Summary</button>
+                            ` : ''}
                             
                             <button onclick="deleteMatch('${m.id}')" class="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm hover:bg-red-200 transition" title="Delete Match"><i class="ph ph-trash"></i></button>
                         </div>
-                        ${m.status === 'Completed' ? `
-                            <div class="text-sm font-bold text-gray-600 mt-2 bg-indigo-50 px-3 py-1.5 rounded border border-indigo-100">Result: <span class="text-indigo-700">${m.resultStr || 'Completed'}</span></div>
-                        ` : ''}
                     </div>
                 </div>`;
             });
@@ -962,15 +1036,29 @@
         function renderPublicFixtures() {
             const list = document.getElementById('public-fixtures-list'); list.innerHTML = '';
             if(State.matches.length === 0) list.innerHTML = `<p class="text-gray-500 text-center py-4">Schedules will be updated soon.</p>`;
-            State.matches.forEach(m => list.innerHTML += `
-                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex justify-between items-center transition hover:shadow-md">
-                    <div class="flex-1 text-right font-bold text-gray-800 cursor-pointer hover:text-emerald-700 transition" onclick="showPublicTeam('${m.id}', 1)" title="Click to view details">${m.team1.name}</div>
-                    <div class="px-4 text-center">
-                        <span class="text-[10px] font-bold bg-gray-100 px-2 py-1 rounded block mb-1">${m.stage}</span>
-                        ${m.status === 'Completed' ? `<span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">Ended</span>` : `<span class="text-emerald-600 font-black">VS</span>`}
+            State.matches.forEach(m => {
+                const isEnded = m.status === 'Completed';
+                list.innerHTML += `
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex flex-col transition hover:shadow-md">
+                    <div class="flex justify-between items-center w-full">
+                        <div class="flex-1 text-right font-bold text-gray-800 cursor-pointer hover:text-emerald-700 transition" onclick="showPublicTeam('${m.id}', 1)" title="Click to view details">${m.team1.name}</div>
+                        <div class="px-4 text-center">
+                            <span class="text-[10px] font-bold bg-gray-100 px-2 py-1 rounded block mb-1">${m.stage}</span>
+                            ${isEnded ? `
+                                <div class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">Ended</div>
+                                <button onclick="openMatchSummary('${m.id}')" class="mt-2 text-indigo-600 hover:text-indigo-800 flex flex-col items-center mx-auto" title="Download Summary PDF"><i class="ph ph-download-simple text-xl"></i></button>
+                            ` : `<span class="text-emerald-600 font-black">VS</span>`}
+                        </div>
+                        <div class="flex-1 text-left font-bold text-gray-800 cursor-pointer hover:text-emerald-700 transition" onclick="showPublicTeam('${m.id}', 2)" title="Click to view details">${m.team2.name}</div>
                     </div>
-                    <div class="flex-1 text-left font-bold text-gray-800 cursor-pointer hover:text-emerald-700 transition" onclick="showPublicTeam('${m.id}', 2)" title="Click to view details">${m.team2.name}</div>
-                </div>`);
+                    ${isEnded ? `
+                        <div class="w-full text-center mt-3 pt-3 border-t border-gray-100">
+                            <span class="text-sm font-bold text-emerald-700 block">${m.resultStr || ''}</span>
+                            <span class="text-[12px] font-bold text-amber-600 block mt-1"><i class="ph-fill ph-trophy"></i> Man of the Match: ${m.mom || 'N/A'}</span>
+                        </div>
+                    ` : ''}
+                </div>`
+            });
         }
 
         window.showPublicTeam = function(matchId, teamIndex) {
@@ -1041,6 +1129,16 @@
 
         window.autoEndInnings = async function() {
             if (!State.liveMatch) return;
+            
+            // Save Innings 1 data permanently for Match Summary PDF later
+            State.liveMatch.innings1Data = {
+                batTeamId: State.liveMatch.batTeam.id,
+                bowlTeamId: State.liveMatch.bowlTeam.id,
+                score: State.liveMatch.score,
+                wickets: State.liveMatch.wickets,
+                overs: Math.floor(State.liveMatch.balls / 6) + '.' + (State.liveMatch.balls % 6)
+            };
+
             State.liveMatch.target = State.liveMatch.score + 1;
             State.liveMatch.innings = 2;
             
@@ -1056,9 +1154,9 @@
             State.liveMatch.runner = { name: '', runs: 0, balls: 0 };
             State.liveMatch.bowler = { name: '', runs: 0, wickets: 0, balls: 0 };
             State.liveMatch.currentOver = [];
-            State.liveMatch.batterStats = {};
-            State.liveMatch.bowlerStats = {};
             State.liveMatch.history = []; 
+            
+            // NOTE: Do not clear batterStats and bowlerStats so that Innings 1 data is preserved for PDF!
             
             const sSel = document.getElementById('sc-striker-select');
             const rSel = document.getElementById('sc-runner-select');
@@ -1078,38 +1176,71 @@
             });
         };
 
-        window.handleMatchEnd = async function(winnerId, loserId, message) {
+        window.handleMatchEnd = async function(winnerId, loserId, fallbackMessage) {
             const match = State.matches.find(m => m.id === State.liveMatch.matchId);
             if(!match) return;
 
+            // Flush current active players to stats before saving
+            if(State.liveMatch.striker.name) State.liveMatch.batterStats[State.liveMatch.striker.name] = {...State.liveMatch.striker};
+            if(State.liveMatch.runner.name) State.liveMatch.batterStats[State.liveMatch.runner.name] = {...State.liveMatch.runner};
+            if(State.liveMatch.bowler.name) State.liveMatch.bowlerStats[State.liveMatch.bowler.name] = {...State.liveMatch.bowler};
+
             let winnerTeam = null;
             let loserTeam = null;
+            let marginStr = fallbackMessage;
+            let mom = "N/A";
 
             if (winnerId !== 'TIE') {
                 winnerTeam = winnerId === match.team1.id ? match.team1 : match.team2;
                 loserTeam = loserId === match.team1.id ? match.team1 : match.team2;
                 
-                // Loser elimination to ensure they drop out from Tournament Progression Auto-Pair logic
+                // Calculate Exact Win Margin
+                if (State.liveMatch.innings1Data && winnerTeam.id === State.liveMatch.innings1Data.batTeamId) {
+                    // Defending team won (Batted first)
+                    let runsMargin = (State.liveMatch.target - 1) - State.liveMatch.score;
+                    marginStr = `${winnerTeam.name} WON BY ${runsMargin} RUNS`;
+                } else {
+                    // Chasing team won (Batted second)
+                    let wktsMargin = (Math.min(winnerTeam.players.length, State.settings.playersLimit) - 1) - State.liveMatch.wickets;
+                    marginStr = `${winnerTeam.name} WON BY ${wktsMargin} WICKETS`;
+                }
+
+                // Eliminate loser
                 await safeFirebaseCall(update(ref(db, `teams/${loserTeam.id}`), { status: 'Eliminated' }));
+
+                // Man of the Match Calculation Logic: Highest Run/Wicket from Winning Team
+                let maxPoints = -1;
+                winnerTeam.players.forEach(p => {
+                    let runs = State.liveMatch.batterStats[p] ? State.liveMatch.batterStats[p].runs : 0;
+                    let wkts = State.liveMatch.bowlerStats[p] ? State.liveMatch.bowlerStats[p].wickets : 0;
+                    let pts = runs + (wkts * 20); // 1 Run = 1pt, 1 Wicket = 20pts
+                    if (pts > maxPoints) { maxPoints = pts; mom = p; }
+                });
             }
 
+            // Save permanent match details
             await safeFirebaseCall(update(ref(db, `matches/${match.id}`), {
                 status: 'Completed',
                 winner: winnerTeam,
                 loser: loserTeam,
-                resultStr: message
+                resultStr: marginStr,
+                mom: mom,
+                stats: {
+                    batterStats: State.liveMatch.batterStats || {},
+                    bowlerStats: State.liveMatch.bowlerStats || {},
+                },
+                innings1Data: State.liveMatch.innings1Data || null,
+                finalScore: { score: State.liveMatch.score, wickets: State.liveMatch.wickets, overs: Math.floor(State.liveMatch.balls / 6) + '.' + (State.liveMatch.balls % 6) }
             }));
 
-            // Final notification check for Championship
+            // Championship Check
             if (match.stage === 'Final' && winnerId !== 'TIE') {
-                showConfirm(`🏆 TOURNAMENT ENDED! 🏆\n\nWINNER / জয়ী: ${winnerTeam.name}\nRUNNER-UP: ${loserTeam.name}`, () => {
-                    closeConfirm();
-                }, true);
+                showConfirm(`🏆 TOURNAMENT ENDED! 🏆\n\nWINNER / জয়ী: ${winnerTeam.name}\nRUNNER-UP: ${loserTeam.name}\nMoM: ${mom}`, () => { closeConfirm(); }, true);
             } else {
-                showToast(`Match Completed! ${winnerTeam ? winnerTeam.name + ' Won' : 'Match Tied'}`);
+                showToast(`Match Completed! ${marginStr}`);
             }
 
-            // Cleanup & Reset back to score-setup view
+            // Cleanup Live DB
             await safeFirebaseCall(remove(ref(db, 'system/live_match')));
             State.liveMatch = null;
             document.getElementById('active-scoring-panel').classList.add('hidden');
@@ -1117,12 +1248,50 @@
             switchTab('admin', 'schedule');
         };
 
+        // Open Match Summary PDF
+        window.openMatchSummary = function(matchId) {
+            const match = State.matches.find(m => m.id === matchId);
+            if (!match || !match.stats) return showToast("Summary data not available for this match.", true);
+
+            document.getElementById('s-stage').innerText = match.stage;
+            document.getElementById('s-team1-name').innerText = match.team1.name;
+            document.getElementById('s-team2-name').innerText = match.team2.name;
+            document.getElementById('s-result').innerText = match.resultStr || "Match Completed";
+            document.getElementById('s-mom').innerText = match.mom || "N/A";
+            
+            document.getElementById('s-t1-head').innerText = match.team1.name;
+            document.getElementById('s-t2-head').innerText = match.team2.name;
+
+            const t1Body = document.getElementById('s-t1-players');
+            const t2Body = document.getElementById('s-t2-players');
+            t1Body.innerHTML = ''; t2Body.innerHTML = '';
+
+            // Render Team 1
+            match.team1.players.forEach(p => {
+                let r = match.stats.batterStats[p] ? match.stats.batterStats[p].runs : 0;
+                let w = match.stats.bowlerStats[p] ? match.stats.bowlerStats[p].wickets : 0;
+                t1Body.innerHTML += `<tr class="border-b border-gray-100 last:border-0"><td class="py-2 font-bold">${p}</td><td class="py-2 text-center text-gray-700">${r}</td><td class="py-2 text-center text-gray-700">${w}</td></tr>`;
+            });
+
+            // Render Team 2
+            match.team2.players.forEach(p => {
+                let r = match.stats.batterStats[p] ? match.stats.batterStats[p].runs : 0;
+                let w = match.stats.bowlerStats[p] ? match.stats.bowlerStats[p].wickets : 0;
+                t2Body.innerHTML += `<tr class="border-b border-gray-100 last:border-0"><td class="py-2 font-bold">${p}</td><td class="py-2 text-center text-gray-700">${r}</td><td class="py-2 text-center text-gray-700">${w}</td></tr>`;
+            });
+
+            document.getElementById('admin-view').classList.add('hidden');
+            document.getElementById('public-view').classList.add('hidden');
+            document.getElementById('main-header').classList.add('hidden');
+            document.getElementById('summary-view').classList.remove('hidden');
+            window.scrollTo(0,0);
+        };
+
         window.updateBatsmenUI = async function() {
             if(!State.liveMatch) return;
             const sName = document.getElementById('sc-striker-select').value; 
             const rName = document.getElementById('sc-runner-select').value;
             
-            // Save currently active batter stats before swapping
             if(sName && State.liveMatch.striker.name !== sName) {
                 if (State.liveMatch.striker.name) State.liveMatch.batterStats[State.liveMatch.striker.name] = {...State.liveMatch.striker};
                 State.liveMatch.striker = State.liveMatch.batterStats[sName] ? {...State.liveMatch.batterStats[sName]} : { name: sName, runs: 0, balls: 0 };
@@ -1140,7 +1309,6 @@
             const bName = document.getElementById('sc-bowler-select').value; 
             if(!bName) return;
             
-            // Save currently active bowler stats before swapping
             if(State.liveMatch.bowler.name && State.liveMatch.bowler.name !== bName) {
                 State.liveMatch.bowlerStats[State.liveMatch.bowler.name] = {...State.liveMatch.bowler};
             }
@@ -1207,7 +1375,6 @@
             _isProcessingBall = true;
 
             try {
-                // Bug fix: Exponential History Growth (Prevents hanging at 1.4 overs / 10th ball)
                 State.liveMatch.history = State.liveMatch.history || [];
                 const snapshot = { ...State.liveMatch, history: [] };
                 State.liveMatch.history.push(JSON.stringify(snapshot));
