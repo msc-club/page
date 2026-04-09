@@ -58,12 +58,12 @@
     <!-- Custom Confirm Modal -->
     <div id="confirmModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
         <div class="bg-white rounded-xl p-6 w-full max-w-sm shadow-2xl text-center">
-            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl"><i class="ph ph-warning-circle"></i></div>
-            <h3 class="text-xl font-bold text-gray-900 mb-2">আপনি কি নিশ্চিত?</h3>
-            <p id="confirm-msg" class="text-gray-500 mb-6 font-medium text-sm"></p>
+            <div id="confirm-icon" class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl"><i class="ph ph-warning-circle"></i></div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Message</h3>
+            <p id="confirm-msg" class="text-gray-500 mb-6 font-medium text-sm whitespace-pre-line"></p>
             <div class="flex gap-3 justify-center">
-                <button onclick="closeConfirm()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-lg transition">না, বাতিল করুন</button>
-                <button onclick="executeConfirm()" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition">হ্যাঁ, নিশ্চিত</button>
+                <button onclick="closeConfirm()" class="px-5 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold rounded-lg transition">Close / বাতিল</button>
+                <button id="confirm-ok-btn" onclick="executeConfirm()" class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition">Yes / নিশ্চিত</button>
             </div>
         </div>
     </div>
@@ -144,7 +144,7 @@
             </div>
         </section>
 
-        <!-- PAYMENT REDIRECT SECTION (Robust Flow) -->
+        <!-- PAYMENT REDIRECT SECTION -->
         <section id="payment-redirect-view" class="hidden">
             <div class="glass-card rounded-2xl p-8 text-center max-w-md mx-auto mt-10 shadow-lg">
                 <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl"><i class="ph ph-shield-check"></i></div>
@@ -463,7 +463,9 @@
             </div>
         </div>
     </div>
-<div id="editMatchModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-center justify-center p-4">
+    
+    <!-- Edit Match Modal -->
+    <div id="editMatchModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[80] flex items-center justify-center p-4">
         <div class="bg-white rounded-xl w-full max-w-md shadow-2xl relative flex flex-col">
             <div class="p-5 border-b flex justify-between items-center bg-indigo-50 rounded-t-xl">
                 <h2 class="text-xl font-bold text-indigo-900"><i class="ph ph-calendar-edit mr-2"></i>ম্যাচ এডিট করুন</h2>
@@ -488,7 +490,8 @@
             </div>
         </div>
     </div>
-    <!-- PDF RECEIPT VIEW (Used for both Registration & Admin Print) -->
+    
+    <!-- PDF RECEIPT VIEW -->
     <div id="receipt-view" class="min-h-screen bg-gray-200 py-8 px-4">
         <div id="print-action-bar" class="max-w-[210mm] mx-auto mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow">
             <button onclick="goBackToApp()" class="text-gray-600 font-bold hover:text-black flex items-center gap-1"><i class="ph ph-arrow-left"></i> Back</button>
@@ -550,7 +553,7 @@
             viewMode: 'public', isLoggedIn: false,
             settings: { entryFee: 1000, upiId: 'modernsportingclub@idbi', playersLimit: 9, maxOversPerBowler: 2, totalOvers: 10, teamLimit: 16, date: '2026-12-25T09:00', ageLimit: 'Open for all' },
             teams: [], matches: [], liveMatch: null, formPlayers: Array(7).fill(''),
-            pendingRegistration: null, editTeamId: null, currentViewingTeam: null
+            pendingRegistration: null, editTeamId: null, currentViewingTeam: null, editMatchId: null
         };
 
         let db, auth;
@@ -563,8 +566,18 @@
             t.style.transform = 'translateY(0)'; t.style.opacity = '1';
             setTimeout(() => { t.style.transform = 'translateY(20px)'; t.style.opacity = '0'; }, 3000);
         };
-        window.showConfirm = function(msg, onConfirm) {
+        window.showConfirm = function(msg, onConfirm, isSuccess = false) {
             document.getElementById('confirm-msg').innerText = msg;
+            const iconDiv = document.getElementById('confirm-icon');
+            if(isSuccess) {
+                iconDiv.className = "w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl";
+                iconDiv.innerHTML = '<i class="ph ph-trophy"></i>';
+                document.getElementById('confirm-ok-btn').className = "px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg transition";
+            } else {
+                iconDiv.className = "w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl";
+                iconDiv.innerHTML = '<i class="ph ph-warning-circle"></i>';
+                document.getElementById('confirm-ok-btn').className = "px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition";
+            }
             document.getElementById('confirmModal').classList.remove('hidden');
             window._confirmCallback = onConfirm;
         };
@@ -619,9 +632,19 @@
                     mData.bowler = mData.bowler || { name: '', runs: 0, wickets: 0, balls: 0 };
                     mData.bowlerStats = mData.bowlerStats || {};
                     mData.batterStats = mData.batterStats || {};
-                    mData.extras = mData.extras || 0; // Extras fallback for older matches
+                    mData.extras = mData.extras || 0; 
                     State.liveMatch = mData; 
                     updateScoreUI(); 
+                    
+                    // AUTO-SHOW SCORE PANEL IF ADMIN RETURNS TO MATCH TAB
+                    if (document.getElementById('adm-tab-score').classList.contains('block')) {
+                        document.getElementById('score-setup-panel').classList.add('hidden');
+                        document.getElementById('active-scoring-panel').classList.remove('hidden');
+                    }
+                } else {
+                    State.liveMatch = null;
+                    document.getElementById('score-setup-panel').classList.remove('hidden');
+                    document.getElementById('active-scoring-panel').classList.add('hidden');
                 }
             });
             
@@ -686,7 +709,6 @@
 
             const regNumber = 'T' + Math.floor(1000 + Math.random() * 9000);
             
-            // Build the extensive address string
             const fullAddress = `${document.getElementById('reg-village').value}, ${document.getElementById('reg-road').value}, PO: ${document.getElementById('reg-po').value}, PS: ${document.getElementById('reg-ps').value}, ${document.getElementById('reg-dist').value} - ${document.getElementById('reg-pin').value}`;
 
             State.pendingRegistration = {
@@ -749,8 +771,12 @@
         function renderTeamsTable() {
             const tb = document.getElementById('admin-teams-table'); tb.innerHTML = ''; document.getElementById('team-count').innerText = State.teams.length;
             State.teams.forEach(t => {
-                const isDis = t.status === 'Disqualified';
-                const statusColor = t.status === 'Approved' ? 'text-emerald-600 bg-emerald-50' : (t.status.includes('Paid') ? 'text-blue-600 bg-blue-50' : (isDis ? 'text-red-600 bg-red-50' : 'text-amber-600 bg-amber-50'));
+                const isDis = t.status === 'Disqualified' || t.status === 'Eliminated';
+                const statusColor = t.status === 'Approved' ? 'text-emerald-600 bg-emerald-50' : 
+                                  (t.status.includes('Paid') ? 'text-blue-600 bg-blue-50' : 
+                                  (t.status === 'Eliminated' ? 'text-gray-600 bg-gray-200' :
+                                  (isDis ? 'text-red-600 bg-red-50' : 'text-amber-600 bg-amber-50')));
+                                  
                 tb.innerHTML += `<tr class="border-b hover:bg-gray-50 ${isDis ? 'opacity-60' : ''}">
                     <td class="p-3 font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer transition" onclick="showAdminTeamDetails('${t.id}')" title="Click to view full details & PDF">${t.name}</td>
                     <td class="p-3">${t.head}</td><td class="p-3 font-mono text-xs">${t.phone}</td>
@@ -831,30 +857,17 @@
         // SCHEDULING (Admin & Public)
         window.autoGenerateMatches = async function() {
             const stage = document.getElementById('schedule-stage').value;
+            // Only pickup Approved teams. Eliminated / Disqualified are omitted natively!
             const approvedTeams = State.teams.filter(t => t.status === 'Approved');
-            if(approvedTeams.length < 2) return showToast("Not enough approved teams.", true);
+            if(approvedTeams.length < 2) return showToast("Not enough approved teams for pairing.", true);
             const half = Math.floor(approvedTeams.length / 2);
             for(let i=0; i<half; i++) {
                 const mId = 'M' + Date.now() + i;
                 await safeFirebaseCall(set(ref(db, `matches/${mId}`), { id: mId, team1: approvedTeams[i], team2: approvedTeams[approvedTeams.length - 1 - i], stage: stage, status: 'Scheduled', time: State.settings.date }));
             }
-            showToast("Matches generated");
-        };
-        
-        // SCHEDULING (Admin & Public)
-        window.autoGenerateMatches = async function() {
-            const stage = document.getElementById('schedule-stage').value;
-            const approvedTeams = State.teams.filter(t => t.status === 'Approved');
-            if(approvedTeams.length < 2) return showToast("Not enough approved teams.", true);
-            const half = Math.floor(approvedTeams.length / 2);
-            for(let i=0; i<half; i++) {
-                const mId = 'M' + Date.now() + i;
-                await safeFirebaseCall(set(ref(db, `matches/${mId}`), { id: mId, team1: approvedTeams[i], team2: approvedTeams[approvedTeams.length - 1 - i], stage: stage, status: 'Scheduled', time: State.settings.date }));
-            }
-            showToast("Matches generated");
+            showToast("Matches generated automatically.");
         };
 
-   // UPDATED: Render Admin Schedules (Delete button available for all matches)
         function renderAdminSchedules() {
             const list = document.getElementById('admin-matches-list'); list.innerHTML = '';
             State.matches.forEach(m => {
@@ -872,44 +885,43 @@
                             <button onclick="jumpToScore('${m.id}')" class="bg-purple-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow hover:bg-purple-700 transition">Start Match</button>
                             ` : ''}
                             
+                            ${m.status === 'Live' ? `
+                            <button onclick="resumeScore('${m.id}')" class="bg-red-600 text-white px-4 py-1.5 rounded-lg text-sm font-bold shadow hover:bg-red-700 transition animate-pulse">Resume Live Match</button>
+                            ` : ''}
+                            
                             <button onclick="deleteMatch('${m.id}')" class="bg-red-100 text-red-700 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm hover:bg-red-200 transition" title="Delete Match"><i class="ph ph-trash"></i></button>
                         </div>
+                        ${m.status === 'Completed' ? `
+                            <div class="text-sm font-bold text-gray-600 mt-2 bg-indigo-50 px-3 py-1.5 rounded border border-indigo-100">Result: <span class="text-indigo-700">${m.resultStr || 'Completed'}</span></div>
+                        ` : ''}
                     </div>
                 </div>`;
             });
         }
 
-        // UPDATED: Delete Match Logic (Clears live match from database if it's currently live)
         window.deleteMatch = function(matchId) {
             showConfirm("আপনি কি নিশ্চিত যে এই ম্যাচটি ডিলিট করতে চান?", async () => {
                 const match = State.matches.find(m => m.id === matchId);
-                
-                // ডেটাবেস থেকে ম্যাচটি ডিলিট করা হচ্ছে
                 await safeFirebaseCall(remove(ref(db, `matches/${matchId}`)));
-                
-                // যদি ডিলিট হওয়া ম্যাচটি বর্তমানে 'Live' থাকে, তবে লাইভ সিস্টেম রিসেট করা হচ্ছে
                 if (match && match.status === 'Live') {
                     await safeFirebaseCall(remove(ref(db, 'system/live_match')));
                     State.liveMatch = null;
                     document.getElementById('active-scoring-panel').classList.add('hidden');
                     document.getElementById('score-setup-panel').classList.remove('hidden');
                 }
-                
                 showToast("Match deleted successfully");
             });
         };
 
-        // NEW: Edit Match Team Logic
         window.openEditMatchModal = function(matchId) {
             const match = State.matches.find(m => m.id === matchId);
             if(!match) return;
-            State.editMatchId = matchId; // Using State to hold current match ID
+            State.editMatchId = matchId; 
             
             const t1Select = document.getElementById('edit-match-team1');
             const t2Select = document.getElementById('edit-match-team2');
             t1Select.innerHTML = ''; t2Select.innerHTML = '';
             
-            // Populate all teams in dropdown
             State.teams.forEach(t => {
                 const opt = `<option value="${t.id}">${t.name} (${t.status})</option>`;
                 t1Select.innerHTML += opt;
@@ -941,30 +953,26 @@
             const btn = e.target.querySelector('button[type="submit"]');
             btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Saving...';
             
-            await safeFirebaseCall(update(ref(db, `matches/${State.editMatchId}`), {
-                team1: team1,
-                team2: team2
-            }));
-            
+            await safeFirebaseCall(update(ref(db, `matches/${State.editMatchId}`), { team1: team1, team2: team2 }));
             showToast("Match Teams updated successfully");
             closeEditMatchModal();
             btn.innerHTML = "Save Match";
         };
 
-        
-        
         function renderPublicFixtures() {
             const list = document.getElementById('public-fixtures-list'); list.innerHTML = '';
             if(State.matches.length === 0) list.innerHTML = `<p class="text-gray-500 text-center py-4">Schedules will be updated soon.</p>`;
             State.matches.forEach(m => list.innerHTML += `
                 <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex justify-between items-center transition hover:shadow-md">
                     <div class="flex-1 text-right font-bold text-gray-800 cursor-pointer hover:text-emerald-700 transition" onclick="showPublicTeam('${m.id}', 1)" title="Click to view details">${m.team1.name}</div>
-                    <div class="px-4 text-center"><span class="text-[10px] font-bold bg-gray-100 px-2 py-1 rounded block mb-1">${m.stage}</span><span class="text-emerald-600 font-black">VS</span></div>
+                    <div class="px-4 text-center">
+                        <span class="text-[10px] font-bold bg-gray-100 px-2 py-1 rounded block mb-1">${m.stage}</span>
+                        ${m.status === 'Completed' ? `<span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded">Ended</span>` : `<span class="text-emerald-600 font-black">VS</span>`}
+                    </div>
                     <div class="flex-1 text-left font-bold text-gray-800 cursor-pointer hover:text-emerald-700 transition" onclick="showPublicTeam('${m.id}', 2)" title="Click to view details">${m.team2.name}</div>
                 </div>`);
         }
 
-        // PUBLIC TEAM POP-UP
         window.showPublicTeam = function(matchId, teamIndex) {
             const match = State.matches.find(m => m.id === matchId); if(!match) return;
             const team = teamIndex === 1 ? match.team1 : match.team2;
@@ -977,6 +985,17 @@
 
         // SCORING SETUP & CORE
         window.jumpToScore = function(matchId) { switchTab('admin', 'score'); document.getElementById('score-match-select').value = matchId; setupMatchContext(); };
+        window.resumeScore = function(matchId) {
+            if (State.liveMatch && State.liveMatch.matchId === matchId) {
+                switchTab('admin', 'score');
+                document.getElementById('score-setup-panel').classList.add('hidden');
+                document.getElementById('active-scoring-panel').classList.remove('hidden');
+                updateScoreUI();
+            } else {
+                showToast("Live match details unavailable right now. Try again.", true);
+            }
+        };
+
         window.populateScoreMatchSelect = function() {
             const sel = document.getElementById('score-match-select'); sel.innerHTML = '<option value="">Select a match...</option>';
             State.matches.filter(m => m.status !== 'Completed').forEach(m => { sel.innerHTML += `<option value="${m.id}">${m.team1.name} vs ${m.team2.name}</option>`; });
@@ -987,11 +1006,10 @@
             document.getElementById('toss-winner').innerHTML = `<option value="${match.team1.id}">${match.team1.name}</option><option value="${match.team2.id}">${match.team2.name}</option>`;
         };
 
-  window.startScoringSession = async function() {
+        window.startScoringSession = async function() {
             const mId = document.getElementById('score-match-select').value; 
             if(!mId) return showToast("Select a match", true);
             
-            // NEW: চেক করুন অন্য কোনো ম্যাচ আগে থেকেই লাইভ আছে কিনা
             const isAnyMatchLive = State.matches.some(m => m.status === 'Live');
             if (isAnyMatchLive) {
                 return showToast("ইতিমধ্যেই একটি লাইভ ম্যাচ চলছে! একসাথে একাধিক ম্যাচ লাইভ করা যাবে না।", true);
@@ -1021,62 +1039,114 @@
             document.getElementById('active-scoring-panel').classList.remove('hidden');
         };
 
+        window.autoEndInnings = async function() {
+            if (!State.liveMatch) return;
+            State.liveMatch.target = State.liveMatch.score + 1;
+            State.liveMatch.innings = 2;
+            
+            const tempTeam = State.liveMatch.batTeam;
+            State.liveMatch.batTeam = State.liveMatch.bowlTeam;
+            State.liveMatch.bowlTeam = tempTeam;
+
+            State.liveMatch.score = 0;
+            State.liveMatch.wickets = 0;
+            State.liveMatch.balls = 0;
+            State.liveMatch.extras = 0; 
+            State.liveMatch.striker = { name: '', runs: 0, balls: 0 };
+            State.liveMatch.runner = { name: '', runs: 0, balls: 0 };
+            State.liveMatch.bowler = { name: '', runs: 0, wickets: 0, balls: 0 };
+            State.liveMatch.currentOver = [];
+            State.liveMatch.batterStats = {};
+            State.liveMatch.bowlerStats = {};
+            State.liveMatch.history = []; 
+            
+            const sSel = document.getElementById('sc-striker-select');
+            const rSel = document.getElementById('sc-runner-select');
+            const bSel = document.getElementById('sc-bowler-select');
+            if(sSel) sSel.value = ''; if(rSel) rSel.value = ''; if(bSel) bSel.value = '';
+
+            await safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch));
+            updateScoreUI();
+            showToast(`1st Innings Ended! Target is ${State.liveMatch.target}`);
+        };
+
         window.endInnings = function() {
             if (!State.liveMatch) return;
             if (State.liveMatch.innings === 2) return showToast("Match already in 2nd Innings!", true);
-            
             showConfirm("আপনি কি প্রথম ইনিংস শেষ করে দ্বিতীয় ইনিংস (Target Set) শুরু করতে চান?", async () => {
-                State.liveMatch.target = State.liveMatch.score + 1;
-                State.liveMatch.innings = 2;
-                
-                // Swap Teams
-                const tempTeam = State.liveMatch.batTeam;
-                State.liveMatch.batTeam = State.liveMatch.bowlTeam;
-                State.liveMatch.bowlTeam = tempTeam;
-
-                // Reset scores and active players
-                State.liveMatch.score = 0;
-                State.liveMatch.wickets = 0;
-                State.liveMatch.balls = 0;
-                State.liveMatch.extras = 0; 
-                State.liveMatch.striker = { name: '', runs: 0, balls: 0 };
-                State.liveMatch.runner = { name: '', runs: 0, balls: 0 };
-                State.liveMatch.bowler = { name: '', runs: 0, wickets: 0, balls: 0 };
-                State.liveMatch.currentOver = [];
-                State.liveMatch.batterStats = {};
-                State.liveMatch.bowlerStats = {};
-                State.liveMatch.history = []; 
-                
-                // Clear UI selection
-                const sSel = document.getElementById('sc-striker-select');
-                const rSel = document.getElementById('sc-runner-select');
-                const bSel = document.getElementById('sc-bowler-select');
-                if(sSel) sSel.value = ''; if(rSel) rSel.value = ''; if(bSel) bSel.value = '';
-
-                await safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch));
-                updateScoreUI();
-                showToast(`1st Innings Ended! Target is ${State.liveMatch.target}`);
+                await window.autoEndInnings();
             });
+        };
+
+        window.handleMatchEnd = async function(winnerId, loserId, message) {
+            const match = State.matches.find(m => m.id === State.liveMatch.matchId);
+            if(!match) return;
+
+            let winnerTeam = null;
+            let loserTeam = null;
+
+            if (winnerId !== 'TIE') {
+                winnerTeam = winnerId === match.team1.id ? match.team1 : match.team2;
+                loserTeam = loserId === match.team1.id ? match.team1 : match.team2;
+                
+                // Loser elimination to ensure they drop out from Tournament Progression Auto-Pair logic
+                await safeFirebaseCall(update(ref(db, `teams/${loserTeam.id}`), { status: 'Eliminated' }));
+            }
+
+            await safeFirebaseCall(update(ref(db, `matches/${match.id}`), {
+                status: 'Completed',
+                winner: winnerTeam,
+                loser: loserTeam,
+                resultStr: message
+            }));
+
+            // Final notification check for Championship
+            if (match.stage === 'Final' && winnerId !== 'TIE') {
+                showConfirm(`🏆 TOURNAMENT ENDED! 🏆\n\nWINNER / জয়ী: ${winnerTeam.name}\nRUNNER-UP: ${loserTeam.name}`, () => {
+                    closeConfirm();
+                }, true);
+            } else {
+                showToast(`Match Completed! ${winnerTeam ? winnerTeam.name + ' Won' : 'Match Tied'}`);
+            }
+
+            // Cleanup & Reset back to score-setup view
+            await safeFirebaseCall(remove(ref(db, 'system/live_match')));
+            State.liveMatch = null;
+            document.getElementById('active-scoring-panel').classList.add('hidden');
+            document.getElementById('score-setup-panel').classList.remove('hidden');
+            switchTab('admin', 'schedule');
         };
 
         window.updateBatsmenUI = async function() {
             if(!State.liveMatch) return;
-            const sName = document.getElementById('sc-striker-select').value; const rName = document.getElementById('sc-runner-select').value;
+            const sName = document.getElementById('sc-striker-select').value; 
+            const rName = document.getElementById('sc-runner-select').value;
+            
+            // Save currently active batter stats before swapping
             if(sName && State.liveMatch.striker.name !== sName) {
+                if (State.liveMatch.striker.name) State.liveMatch.batterStats[State.liveMatch.striker.name] = {...State.liveMatch.striker};
                 State.liveMatch.striker = State.liveMatch.batterStats[sName] ? {...State.liveMatch.batterStats[sName]} : { name: sName, runs: 0, balls: 0 };
             }
             if(rName && State.liveMatch.runner.name !== rName) {
+                if (State.liveMatch.runner.name) State.liveMatch.batterStats[State.liveMatch.runner.name] = {...State.liveMatch.runner};
                 State.liveMatch.runner = State.liveMatch.batterStats[rName] ? {...State.liveMatch.batterStats[rName]} : { name: rName, runs: 0, balls: 0 };
             }
-            safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch)); updateScoreUI();
+            safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch)); 
+            updateScoreUI();
         };
 
         window.updateBowlerUI = async function() {
             if(!State.liveMatch) return;
-            const bName = document.getElementById('sc-bowler-select').value; if(!bName) return;
-            if(State.liveMatch.bowler.name) State.liveMatch.bowlerStats[State.liveMatch.bowler.name] = {...State.liveMatch.bowler};
+            const bName = document.getElementById('sc-bowler-select').value; 
+            if(!bName) return;
+            
+            // Save currently active bowler stats before swapping
+            if(State.liveMatch.bowler.name && State.liveMatch.bowler.name !== bName) {
+                State.liveMatch.bowlerStats[State.liveMatch.bowler.name] = {...State.liveMatch.bowler};
+            }
             State.liveMatch.bowler = State.liveMatch.bowlerStats[bName] ? {...State.liveMatch.bowlerStats[bName]} : { name: bName, runs: 0, wickets: 0, balls: 0 };
-            safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch)); updateScoreUI();
+            safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch)); 
+            updateScoreUI();
         };
 
         window.swapStrikeManual = async function() {
@@ -1109,95 +1179,143 @@
         };
 
         window.undoLastBall = async function() {
-            if(!State.liveMatch || State.liveMatch.history.length === 0) return showToast("Nothing to undo in this innings", true);
+            if(!State.liveMatch || !State.liveMatch.history || State.liveMatch.history.length === 0) return showToast("Nothing to undo in this innings", true);
             showConfirm("আপনি কি সর্বশেষ বলটি ডিলিট (Undo) করতে চান?", async () => {
-                const poppedState = JSON.parse(State.liveMatch.history.pop());
-                State.liveMatch = poppedState; 
-                await safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch));
-                updateScoreUI();
-                showToast("Last ball removed/restored.");
+                try {
+                    const poppedStateStr = State.liveMatch.history.pop();
+                    const poppedState = JSON.parse(poppedStateStr);
+                    // Retain the remaining history array to prevent losing past undo states
+                    poppedState.history = State.liveMatch.history; 
+                    State.liveMatch = poppedState; 
+                    await safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch));
+                    updateScoreUI();
+                    showToast("Last ball removed/restored.");
+                } catch(e) {
+                    console.error("Undo error", e);
+                    showToast("Failed to undo ball.", true);
+                }
             });
         };
 
-        // ADVANCED SCORING ENGINE (STRICT BATSMAN RUN LOGIC)
+        let _isProcessingBall = false;
         window.processBall = async function(runs, type, wktData = null) {
+            if(_isProcessingBall) return;
             if(!State.liveMatch) return;
             if(!State.liveMatch.striker.name || !State.liveMatch.bowler.name) return showToast("Please select Striker & Bowler", true);
-            
             if(State.liveMatch.innings === 2 && State.liveMatch.score >= State.liveMatch.target) return showToast("Match is already won by Batting Team!", true);
 
-            State.liveMatch.history = State.liveMatch.history || [];
-            State.liveMatch.history.push(JSON.stringify(State.liveMatch));
+            _isProcessingBall = true;
 
-            let isLegal = true, isExtra = false, displayStr = runs.toString();
-            let teamRuns = runs, bowlerRuns = 0, batRunsToBatter = 0, extraRunsToTeam = 0;
+            try {
+                // Bug fix: Exponential History Growth (Prevents hanging at 1.4 overs / 10th ball)
+                State.liveMatch.history = State.liveMatch.history || [];
+                const snapshot = { ...State.liveMatch, history: [] };
+                State.liveMatch.history.push(JSON.stringify(snapshot));
 
-            // Logic to attribute EXACT runs to entity
-            if(type === 'RUN') {
-                bowlerRuns = runs; batRunsToBatter = runs; if(runs === 0) displayStr = '•';
-            } else if(type === 'WD') {
-                isLegal = false; isExtra = true; 
-                teamRuns = runs + 1; bowlerRuns = runs + 1; extraRunsToTeam = runs + 1;
-                displayStr = runs > 0 ? `WD+${runs}` : 'WD';
-            } else if(type === 'NB') {
-                isLegal = false; isExtra = true; 
-                teamRuns = runs + 1; bowlerRuns = runs + 1; extraRunsToTeam = 1; batRunsToBatter = runs; // Only off-bat runs go to batter
-                displayStr = runs > 0 ? `NB+${runs}` : 'NB';
-            } else if(type === 'BYE') {
-                isExtra = true; bowlerRuns = 0; extraRunsToTeam = runs; // 0 bat runs to batter
-                displayStr = `${runs}B`;
-            } else if(type === 'LB') {
-                isExtra = true; bowlerRuns = 0; extraRunsToTeam = runs; // 0 bat runs to batter
-                displayStr = `${runs}LB`;
-            } else if(type === 'WICKET') {
-                teamRuns = runs; bowlerRuns = runs; batRunsToBatter = runs;
-                displayStr = 'W';
-            }
+                let isLegal = true, isExtra = false, displayStr = runs.toString();
+                let teamRuns = runs, bowlerRuns = 0, batRunsToBatter = 0, extraRunsToTeam = 0;
 
-            // Database Application
-            State.liveMatch.score += teamRuns;
-            State.liveMatch.extras = (State.liveMatch.extras || 0) + extraRunsToTeam;
-            State.liveMatch.bowler.runs += bowlerRuns;
-            
-            // STRICTLY PREVENTING RUNNER FROM GETTING RUNS
-            // Runs go to Striker ONLY. Extra runs go nowhere but Team Extras.
-            State.liveMatch.striker.runs += batRunsToBatter; 
-            
-            if (type !== 'WD') State.liveMatch.striker.balls++;
-            if (isLegal) { State.liveMatch.balls++; State.liveMatch.bowler.balls++; }
+                if(type === 'RUN') {
+                    bowlerRuns = runs; batRunsToBatter = runs; if(runs === 0) displayStr = '•';
+                } else if(type === 'WD') {
+                    isLegal = false; isExtra = true; 
+                    teamRuns = runs + 1; bowlerRuns = runs + 1; extraRunsToTeam = runs + 1;
+                    displayStr = runs > 0 ? `WD+${runs}` : 'WD';
+                } else if(type === 'NB') {
+                    isLegal = false; isExtra = true; 
+                    teamRuns = runs + 1; bowlerRuns = runs + 1; extraRunsToTeam = 1; batRunsToBatter = runs;
+                    displayStr = runs > 0 ? `NB+${runs}` : 'NB';
+                } else if(type === 'BYE') {
+                    isExtra = true; bowlerRuns = 0; extraRunsToTeam = runs;
+                    displayStr = `${runs}B`;
+                } else if(type === 'LB') {
+                    isExtra = true; bowlerRuns = 0; extraRunsToTeam = runs;
+                    displayStr = `${runs}LB`;
+                } else if(type === 'WICKET') {
+                    teamRuns = runs; bowlerRuns = runs; batRunsToBatter = runs;
+                    displayStr = 'W';
+                }
 
-            let tagStr = `<span class="bg-gray-200 px-2 py-1 rounded text-gray-800 shadow-sm">${displayStr}</span>`;
-            if(!isLegal) tagStr = `<span class="bg-blue-100 px-2 py-1 rounded text-blue-800 font-bold border border-blue-200">${displayStr}</span>`;
-            else if(type === 'WICKET') tagStr = `<span class="bg-red-600 px-2 py-1 rounded text-white font-bold shadow-md">${displayStr}</span>`;
-            else if(runs >= 4 && type === 'RUN') tagStr = `<span class="bg-emerald-600 px-2 py-1 rounded text-white font-bold shadow-md">${displayStr}</span>`;
-            State.liveMatch.currentOver.push(tagStr);
-
-            if(type === 'WICKET' && wktData) {
-                State.liveMatch.wickets++;
-                if(wktData.type !== 'Run Out') State.liveMatch.bowler.wickets++;
+                State.liveMatch.score += teamRuns;
+                State.liveMatch.extras = (State.liveMatch.extras || 0) + extraRunsToTeam;
+                State.liveMatch.bowler.runs += bowlerRuns;
                 
-                const outBKey = wktData.outBatter === State.liveMatch.striker.name ? 'striker' : 'runner';
-                State.liveMatch.batterStats[State.liveMatch[outBKey].name] = {...State.liveMatch[outBKey]}; 
-                State.liveMatch[outBKey] = { name: '', runs: 0, balls: 0 }; 
-            }
-
-            // Smart Strike Rotation Rule 1: Swap on odd runs completed across pitch
-            if(runs % 2 !== 0) swapStrikeStateOnly();
-
-            // End of Over & Strike Rotation Rule 2
-            if(isLegal && State.liveMatch.balls % 6 === 0 && State.liveMatch.balls > 0) {
-                State.liveMatch.currentOver = [];
-                swapStrikeStateOnly(); 
+                State.liveMatch.striker.runs += batRunsToBatter; 
                 
-                State.liveMatch.bowlerStats[State.liveMatch.bowler.name] = {...State.liveMatch.bowler};
-                State.liveMatch.bowler = { name: '', runs: 0, wickets: 0, balls: 0 }; 
-            }
+                if (type !== 'WD') State.liveMatch.striker.balls++;
+                if (isLegal) { State.liveMatch.balls++; State.liveMatch.bowler.balls++; }
 
-            await safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch)); updateScoreUI();
-            
-            // Check Auto Victory
-            if (State.liveMatch.innings === 2 && State.liveMatch.score >= State.liveMatch.target) {
-                showToast("Target Reached! Batting team won.");
+                let tagStr = `<span class="bg-gray-200 px-2 py-1 rounded text-gray-800 shadow-sm">${displayStr}</span>`;
+                if(!isLegal) tagStr = `<span class="bg-blue-100 px-2 py-1 rounded text-blue-800 font-bold border border-blue-200">${displayStr}</span>`;
+                else if(type === 'WICKET') tagStr = `<span class="bg-red-600 px-2 py-1 rounded text-white font-bold shadow-md">${displayStr}</span>`;
+                else if(runs >= 4 && type === 'RUN') tagStr = `<span class="bg-emerald-600 px-2 py-1 rounded text-white font-bold shadow-md">${displayStr}</span>`;
+                State.liveMatch.currentOver.push(tagStr);
+
+                if(type === 'WICKET' && wktData) {
+                    State.liveMatch.wickets++;
+                    if(wktData.type !== 'Run Out') State.liveMatch.bowler.wickets++;
+                    
+                    const outBKey = wktData.outBatter === State.liveMatch.striker.name ? 'striker' : 'runner';
+                    State.liveMatch.batterStats[State.liveMatch[outBKey].name] = {...State.liveMatch[outBKey]}; 
+                    State.liveMatch[outBKey] = { name: '', runs: 0, balls: 0 }; 
+                }
+
+                if(runs % 2 !== 0) swapStrikeStateOnly();
+
+                if(isLegal && State.liveMatch.balls % 6 === 0 && State.liveMatch.balls > 0) {
+                    State.liveMatch.currentOver = [];
+                    swapStrikeStateOnly(); 
+                    
+                    State.liveMatch.bowlerStats[State.liveMatch.bowler.name] = {...State.liveMatch.bowler};
+                    State.liveMatch.bowler = { name: '', runs: 0, wickets: 0, balls: 0 }; 
+                }
+
+                await safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch)); 
+                updateScoreUI();
+                
+                // Auto checks for match / innings progression
+                setTimeout(() => {
+                    if (!State.liveMatch) {
+                        _isProcessingBall = false;
+                        return;
+                    }
+                    const batPlayerLimit = Math.min(State.liveMatch.batTeam.players.length, State.settings.playersLimit) - 1;
+
+                    if (State.liveMatch.innings === 1) {
+                        const isAllOut1 = State.liveMatch.wickets >= batPlayerLimit;
+                        const isMaxOvers1 = State.liveMatch.balls >= State.liveMatch.totalOvers * 6;
+                        if (isAllOut1 || isMaxOvers1) {
+                            showToast(isAllOut1 ? "All Out! 1st Innings Ended." : "Max overs reached! 1st Innings Ended.");
+                            setTimeout(() => { window.autoEndInnings(); _isProcessingBall = false; }, 1500);
+                            return;
+                        }
+                    } else if (State.liveMatch.innings === 2) {
+                        const isAllOut2 = State.liveMatch.wickets >= batPlayerLimit;
+                        const isMaxOvers2 = State.liveMatch.balls >= State.liveMatch.totalOvers * 6;
+                        const isTargetReached = State.liveMatch.score >= State.liveMatch.target;
+
+                        if (isTargetReached) {
+                            setTimeout(() => { window.handleMatchEnd(State.liveMatch.batTeam.id, State.liveMatch.bowlTeam.id, `${State.liveMatch.batTeam.name} Won!`); _isProcessingBall = false; }, 1500);
+                            return;
+                        } else if (isAllOut2 || isMaxOvers2) {
+                            if (State.liveMatch.score >= State.liveMatch.target) {
+                                setTimeout(() => { window.handleMatchEnd(State.liveMatch.batTeam.id, State.liveMatch.bowlTeam.id, `${State.liveMatch.batTeam.name} Won!`); _isProcessingBall = false; }, 1500);
+                                return;
+                            } else if (State.liveMatch.score === State.liveMatch.target - 1) {
+                                setTimeout(() => { window.handleMatchEnd('TIE', 'TIE', "Match Tied!"); _isProcessingBall = false; }, 1500);
+                                return;
+                            } else {
+                                setTimeout(() => { window.handleMatchEnd(State.liveMatch.bowlTeam.id, State.liveMatch.batTeam.id, `${State.liveMatch.bowlTeam.name} Won!`); _isProcessingBall = false; }, 1500);
+                                return;
+                            }
+                        }
+                    }
+                    _isProcessingBall = false;
+                }, 100);
+
+            } catch (e) {
+                console.error("Ball Processing Error", e);
+                _isProcessingBall = false;
             }
         };
 
@@ -1206,14 +1324,13 @@
             const lm = State.liveMatch; if(!lm) return;
             const oversStr = `${Math.floor(lm.balls / 6)}.${lm.balls % 6}`;
             
-            // Dynamic Target String Generation
             let targetHtmlAdmin = ''; let targetHtmlPublic = '';
             if (lm.innings === 2) {
                 const reqRuns = lm.target - lm.score;
                 const ballsLeft = (lm.totalOvers * 6) - lm.balls;
                 let matchStatus = `Need ${reqRuns > 0 ? reqRuns : 0} runs in ${ballsLeft > 0 ? ballsLeft : 0} balls`;
                 if (reqRuns <= 0) matchStatus = `<span class="text-emerald-400 font-black">BATTING TEAM WON!</span>`;
-                else if (ballsLeft <= 0 || lm.wickets >= lm.batTeam.players.length - 1) matchStatus = `<span class="text-red-400 font-black">BOWLING TEAM WON!</span>`;
+                else if (ballsLeft <= 0 || lm.wickets >= Math.min(lm.batTeam.players.length, State.settings.playersLimit) - 1) matchStatus = `<span class="text-red-400 font-black">BOWLING TEAM WON!</span>`;
                 
                 targetHtmlAdmin = `
                     <div class="bg-indigo-900 border border-indigo-500/50 text-indigo-100 p-2 md:p-3 rounded-lg mt-2 flex justify-between items-center text-sm shadow-inner">
@@ -1231,19 +1348,38 @@
             if(document.getElementById('sc-total-score')) {
                 const sSel = document.getElementById('sc-striker-select'); const rSel = document.getElementById('sc-runner-select'); const bSel = document.getElementById('sc-bowler-select');
                 
-                sSel.innerHTML = '<option value="">Select...</option>'; rSel.innerHTML = '<option value="">Select...</option>';
+                sSel.innerHTML = '<option value="">Select...</option>'; 
+                rSel.innerHTML = '<option value="">Select...</option>';
+                
                 lm.batTeam.players.forEach(p => { 
                     const isOut = lm.batterStats && lm.batterStats[p];
-                    const opt = `<option value="${p}" ${isOut ? 'disabled' : ''}>${p} ${isOut ? '(Out)' : ''}</option>`; 
-                    sSel.innerHTML += opt; rSel.innerHTML += opt; 
+                    const isStriker = lm.striker.name === p;
+                    const isRunner = lm.runner.name === p;
+                    
+                    if (isOut && !isStriker && !isRunner) {
+                        const opt = `<option value="${p}" disabled class="text-red-500 bg-red-50 italic">${p} (Out)</option>`; 
+                        sSel.innerHTML += opt; rSel.innerHTML += opt; 
+                    } else {
+                        const opt = `<option value="${p}">${p}</option>`; 
+                        sSel.innerHTML += opt; rSel.innerHTML += opt; 
+                    }
                 });
-                sSel.value = lm.striker.name || ''; rSel.value = lm.runner.name || '';
+                sSel.value = lm.striker.name || ''; 
+                rSel.value = lm.runner.name || '';
 
                 bSel.innerHTML = '<option value="">Select Bowler...</option>';
                 const maxBalls = (parseInt(State.settings.maxOversPerBowler) || 2) * 6;
                 lm.bowlTeam.players.forEach(p => {
-                    const stats = lm.bowlerStats[p]; const bBalls = stats ? stats.balls : 0; const isMaxed = bBalls >= maxBalls;
-                    bSel.innerHTML += `<option value="${p}" ${isMaxed && lm.bowler.name !== p ? 'disabled' : ''}>${p} ${isMaxed ? '(Max Limit)' : `(${Math.floor(bBalls/6)}.${bBalls%6} Ov)`}</option>`;
+                    const stats = lm.bowlerStats[p]; 
+                    const bBalls = (lm.bowler.name === p) ? lm.bowler.balls : (stats ? stats.balls : 0); 
+                    const isMaxed = bBalls >= maxBalls;
+                    const isCurrentBowler = lm.bowler.name === p;
+
+                    if (isMaxed && !isCurrentBowler) {
+                        bSel.innerHTML += `<option value="${p}" disabled class="text-gray-400 bg-gray-100 italic">${p} (Max Limit Reached: ${Math.floor(bBalls/6)}.${bBalls%6} Ov)</option>`;
+                    } else {
+                        bSel.innerHTML += `<option value="${p}">${p} (${Math.floor(bBalls/6)}.${bBalls%6} Ov)</option>`;
+                    }
                 });
                 bSel.value = lm.bowler.name || '';
 
@@ -1278,21 +1414,88 @@
 
         // TABS & APP NAVIGATION
         window.switchTab = function(mode, tabId) {
-            document.querySelectorAll(`.${mode === 'public' ? 'pub' : 'adm'}-tab-btn`).forEach(b => { b.classList.remove(mode==='public'?'text-emerald-700':'text-emerald-400', mode==='public'?'border-emerald-700':'border-emerald-400'); b.classList.add(mode==='public'?'text-gray-500':'text-gray-400', 'border-transparent'); });
-            const btn = document.getElementById(`${mode === 'public' ? 'pub' : 'adm'}-tab-btn-${tabId}`); if(!btn) return;
-            btn.classList.remove(mode==='public'?'text-gray-500':'text-gray-400', 'border-transparent'); btn.classList.add(mode==='public'?'text-emerald-700':'text-emerald-400', mode==='public'?'border-emerald-700':'border-emerald-400');
-            document.querySelectorAll(`.${mode === 'public' ? 'pub' : 'adm'}-tab-content`).forEach(c => { c.classList.add('hidden'); c.classList.remove('block'); });
+            document.querySelectorAll(`.${mode === 'public' ? 'pub' : 'adm'}-tab-btn`).forEach(b => { 
+                b.classList.remove(mode==='public'?'text-emerald-700':'text-emerald-400', mode==='public'?'border-emerald-700':'border-emerald-400'); 
+                b.classList.add(mode==='public'?'text-gray-500':'text-gray-400', 'border-transparent'); 
+            });
+            const btn = document.getElementById(`${mode === 'public' ? 'pub' : 'adm'}-tab-btn-${tabId}`); 
+            if(!btn) return;
+            
+            btn.classList.remove(mode==='public'?'text-gray-500':'text-gray-400', 'border-transparent'); 
+            btn.classList.add(mode==='public'?'text-emerald-700':'text-emerald-400', mode==='public'?'border-emerald-700':'border-emerald-400');
+            
+            document.querySelectorAll(`.${mode === 'public' ? 'pub' : 'adm'}-tab-content`).forEach(c => { 
+                c.classList.add('hidden'); c.classList.remove('block'); 
+            });
             document.getElementById('payment-redirect-view').classList.add('hidden');
-            document.getElementById(`${mode === 'public' ? 'pub' : 'adm'}-tab-${tabId}`).classList.remove('hidden'); document.getElementById(`${mode === 'public' ? 'pub' : 'adm'}-tab-${tabId}`).classList.add('block');
+            
+            const contentPane = document.getElementById(`${mode === 'public' ? 'pub' : 'adm'}-tab-${tabId}`);
+            contentPane.classList.remove('hidden'); 
+            contentPane.classList.add('block');
+            
+            // Re-enter Score Engine logic (Admin return Path)
+            if (mode === 'admin' && tabId === 'score') {
+                if (State.liveMatch) {
+                    document.getElementById('score-setup-panel').classList.add('hidden');
+                    document.getElementById('active-scoring-panel').classList.remove('hidden');
+                } else {
+                    document.getElementById('score-setup-panel').classList.remove('hidden');
+                    document.getElementById('active-scoring-panel').classList.add('hidden');
+                }
+            }
         };
+
         window.showLoginModal = () => document.getElementById('loginModal').classList.remove('hidden');
         window.hideLoginModal = () => document.getElementById('loginModal').classList.add('hidden');
-        window.performLogin = () => { if(document.getElementById('login-user').value === 'admin' && document.getElementById('login-pass').value === 'admin') { State.isLoggedIn = true; hideLoginModal(); document.getElementById('loginBtn').classList.add('hidden'); document.getElementById('logoutBtn').classList.remove('hidden'); document.getElementById('adminToggleBtn').classList.remove('hidden'); toggleView('admin'); showToast("Logged in as Admin"); } else showToast("Invalid Credentials", true); };
-        window.logout = () => { State.isLoggedIn = false; document.getElementById('loginBtn').classList.remove('hidden'); document.getElementById('logoutBtn').classList.add('hidden'); document.getElementById('adminToggleBtn').classList.add('hidden'); toggleView('public'); showToast("Logged out"); };
+        
+        // লগইনের পর সরাসরি লাইভ ম্যাচে যাওয়ার লজিক
+        window.performLogin = () => { 
+            if(document.getElementById('login-user').value === 'admin' && document.getElementById('login-pass').value === 'admin') { 
+                State.isLoggedIn = true; 
+                hideLoginModal(); 
+                document.getElementById('loginBtn').classList.add('hidden'); 
+                document.getElementById('logoutBtn').classList.remove('hidden'); 
+                document.getElementById('adminToggleBtn').classList.remove('hidden'); 
+                toggleView('admin'); 
+                showToast(State.liveMatch ? "Logged in! Resuming Live Match..." : "Logged in as Admin"); 
+            } else {
+                showToast("Invalid Credentials", true); 
+            }
+        };
+
+        window.logout = () => { 
+            State.isLoggedIn = false; 
+            document.getElementById('loginBtn').classList.remove('hidden'); 
+            document.getElementById('logoutBtn').classList.add('hidden'); 
+            document.getElementById('adminToggleBtn').classList.add('hidden'); 
+            toggleView('public'); 
+            showToast("Logged out"); 
+        };
+        
         window.toggleView = (force) => {
             State.viewMode = force || (State.viewMode === 'public' ? 'admin' : 'public');
-            if (State.viewMode === 'admin') { document.getElementById('public-view').classList.add('hidden'); document.getElementById('publicNav').classList.add('hidden'); document.getElementById('admin-view').classList.remove('hidden'); document.getElementById('adminNav').classList.remove('hidden'); document.getElementById('adminNav').classList.add('flex'); switchTab('admin', 'settings'); } 
-            else { document.getElementById('admin-view').classList.add('hidden'); document.getElementById('adminNav').classList.add('hidden'); document.getElementById('adminNav').classList.remove('flex'); document.getElementById('public-view').classList.remove('hidden'); document.getElementById('publicNav').classList.remove('hidden'); switchTab('public', 'entry'); }
+            if (State.viewMode === 'admin') { 
+                document.getElementById('public-view').classList.add('hidden'); 
+                document.getElementById('publicNav').classList.add('hidden'); 
+                document.getElementById('admin-view').classList.remove('hidden'); 
+                document.getElementById('adminNav').classList.remove('hidden'); 
+                document.getElementById('adminNav').classList.add('flex'); 
+                
+                // Admin View এ গেলে যদি ম্যাচ লাইভ থাকে, সরাসরি Score Entry ট্যাবে নিয়ে যাবে
+                if (State.liveMatch) switchTab('admin', 'score');
+                else switchTab('admin', 'settings'); 
+            } 
+            else { 
+                document.getElementById('admin-view').classList.add('hidden'); 
+                document.getElementById('adminNav').classList.add('hidden'); 
+                document.getElementById('adminNav').classList.remove('flex'); 
+                document.getElementById('public-view').classList.remove('hidden'); 
+                document.getElementById('publicNav').classList.remove('hidden'); 
+                
+                // Public View এ গেলে যদি ম্যাচ লাইভ থাকে, সরাসরি Live Score ট্যাবে নিয়ে যাবে
+                if (State.liveMatch) switchTab('public', 'live');
+                else switchTab('public', 'entry'); 
+            }
         };
 
         initFirebase();
