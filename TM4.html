@@ -8,6 +8,7 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initAddressAutocomplete" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Phosphor Icons -->
@@ -122,9 +123,15 @@
     <h3 class="font-semibold text-gray-700 border-b pb-2">TEAM ADDRESS | দলের ঠিকানা</h3>
     
     <div class="input-group bg-white p-3 rounded border border-emerald-200 shadow-sm mb-4">
-        <label class="text-emerald-700"><i class="ph ph-map-pin"></i> Search Address / ঠিকানা খুঁজুন (অটো-ফিল)</label>
-        <input type="text" id="address-search" class="input-field border-emerald-300 focus:border-emerald-600" placeholder="Type village, road or city name...">
+    <label class="text-emerald-700"><i class="ph ph-map-pin"></i> Search Address / ঠিকানা খুঁজুন (অটো-ফিল)</label>
+    <div class="flex flex-col md:flex-row gap-2">
+        <input type="text" id="address-search" class="input-field border-emerald-300 focus:border-emerald-600 flex-1" placeholder="Type village, road or city name...">
+        
+        <button type="button" onclick="getLocation()" class="text-sm font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center gap-2 transition whitespace-nowrap">
+            <i class="ph-fill ph-crosshair"></i> Use My Current Location
+        </button>
     </div>
+</div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="input-group"><label>Village / গ্রাম *</label><input type="text" id="reg-village" required class="input-field"></div>
@@ -535,6 +542,9 @@
         <div class="print-action-bar max-w-[210mm] mx-auto mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow">
             <button onclick="goBackToApp()" class="text-gray-600 font-bold hover:text-black flex items-center gap-1"><i class="ph ph-arrow-left"></i> Back</button>
             <button onclick="window.print()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-emerald-700"><i class="ph ph-printer"></i> Print / Save PDF</button>
+            <button id="receipt-download-btn" onclick="downloadReceiptPDF()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-emerald-700">
+    <i class="ph ph-download-simple"></i> Download PDF
+</button>
         </div>
         <div class="a4-container font-serif border border-gray-300 bg-white">
             <div class="text-center mb-6">
@@ -574,6 +584,7 @@
         <div class="print-action-bar max-w-[210mm] mx-auto mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow">
             <button onclick="goBackToAppFromSummary()" class="text-gray-600 font-bold hover:text-black flex items-center gap-1"><i class="ph ph-arrow-left"></i> Back</button>
             <button onclick="window.print()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-indigo-700"><i class="ph ph-printer"></i> Print / Download PDF</button>
+            
         </div>
         <div class="a4-container font-sans border border-gray-300 bg-white">
             <div class="text-center mb-6 pb-4 border-b-2 border-gray-800">
@@ -680,6 +691,73 @@
             }
         });
     };
+    
+    window.getLocation = function() {
+    const btn = event.currentTarget;
+    const originalText = btn.innerHTML;
+    
+    // ব্রাউজারে Geolocation সাপোর্ট করে কিনা চেক করা
+    if (!navigator.geolocation) {
+        showToast("আপনার ব্রাউজার লোকেশন সাপোর্ট করে না।", true);
+        return;
+    }
+
+    btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Locating...';
+
+    navigator.geolocation.getCurrentPosition(
+        // Success Callback
+        async (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            // Google Maps Geocoder দিয়ে Lat/Lng থেকে ঠিকানা বের করা
+            const geocoder = new google.maps.Geocoder();
+            const latlng = { lat: parseFloat(lat), lng: parseFloat(lng) };
+
+            geocoder.geocode({ location: latlng }, (results, status) => {
+                btn.innerHTML = originalText;
+
+                if (status === "OK" && results[0]) {
+                    // ডেটা ফিল করার আগে ফিল্ড খালি করে দেওয়া
+                    document.getElementById('reg-village').value = '';
+                    document.getElementById('reg-road').value = '';
+                    document.getElementById('reg-pin').value = '';
+
+                    // Google-এর রেজাল্ট থেকে গ্রাম, রাস্তা ও পিনকোড আলাদা করা
+                    for (const component of results[0].address_components) {
+                        const componentType = component.types[0];
+
+                        switch (componentType) {
+                            case "route": 
+                                document.getElementById('reg-road').value = component.long_name; 
+                                break;
+                            case "sublocality_level_1":
+                            case "locality": 
+                                document.getElementById('reg-village').value = component.long_name; 
+                                break;
+                            case "postal_code": 
+                                document.getElementById('reg-pin').value = component.long_name; 
+                                break;
+                        }
+                    }
+                    showToast("ঠিকানা পাওয়া গেছে! দয়া করে যাচাই করে নিন।");
+                } else {
+                    showToast("সঠিক ঠিকানা খুঁজে পাওয়া যায়নি। ম্যানুয়ালি লিখুন।", true);
+                }
+            });
+        },
+        // Error Callback
+        (error) => {
+            btn.innerHTML = originalText;
+            if (error.code === error.PERMISSION_DENIED) {
+                showToast("আপনি লোকেশন পারমিশন দেননি!", true);
+            } else {
+                showToast("লোকেশন পেতে সমস্যা হচ্ছে।", true);
+            }
+        }
+    );
+};
+    
 </script>
     
     <!-- FIREBASE RTDB CLOUD SYNC & APP LOGIC -->
@@ -848,7 +926,64 @@
         window.removeFormPlayer = (i, mode) => { State.formPlayers.splice(i, 1); renderPlayersForm(mode); };
         window.addPlayer = (mode) => { if (State.formPlayers.length < State.settings.playersLimit) { State.formPlayers.push(''); renderPlayersForm(mode); } else showToast(`Admin Limit: Max ${State.settings.playersLimit} players.`, true); };
 
-        // TEAM REGISTRATION
+    // Global variable for timer
+        let qrTimerInterval;
+
+        // Helper function to handle QR Generation and Timer
+        window.generateUPIPaymentUI = function(regNumber, amount) {
+            const upiLink = `upi://pay?pa=${State.settings.upiId}&pn=Modern%20Sporting%20Club&am=${amount}&cu=INR&tn=Reg_${regNumber}`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
+            
+            document.getElementById('upi-init-box').innerHTML = `
+                <a href="${upiLink}" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg flex justify-center items-center gap-2 transition mb-3 animate-pulse text-center" onclick="document.getElementById('upi-verify-box').classList.remove('hidden')"><i class="ph ph-device-mobile"></i> Open UPI App to Pay</a>
+                <div class="mt-4 border-t pt-4 relative">
+                    <div id="qr-timer-display" class="text-sm text-red-600 font-bold mb-2 text-center bg-red-50 py-1 rounded">QR Expiring in: <span id="qr-countdown" class="font-mono text-lg">01:00</span></div>
+                    
+                    <div id="qr-image-container" class="transition-opacity duration-300">
+                        <p class="text-xs text-gray-500 mb-2 font-bold uppercase text-center">If App doesn't open, scan this QR code:</p>
+                        <img src="${qrUrl}" class="mx-auto border p-2 rounded-lg bg-white shadow-sm" alt="UPI QR">
+                        <button onclick="document.getElementById('upi-verify-box').classList.remove('hidden')" class="text-xs text-indigo-600 font-bold mt-2 underline w-full text-center">I have paid using QR</button>
+                    </div>
+                    
+                    <div id="qr-regenerate-container" class="hidden text-center py-6 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                        <i class="ph ph-clock-countdown text-3xl text-gray-400 mb-2"></i>
+                        <p class="text-sm text-gray-600 mb-3 font-semibold">QR Code Expired for Security.</p>
+                        <button onclick="generateUPIPaymentUI('${regNumber}', ${amount})" class="bg-gray-800 text-white px-5 py-2.5 rounded-lg font-bold shadow hover:bg-gray-700 transition flex items-center justify-center gap-2 mx-auto"><i class="ph ph-arrows-clockwise"></i> Generate QR Again</button>
+                    </div>
+                </div>
+            `;
+
+            // Start 60 seconds timer
+            startQRTimer(60);
+        };
+
+        window.startQRTimer = function(seconds) {
+            clearInterval(qrTimerInterval); // Clear any existing timer
+            let timeLeft = seconds;
+            
+            qrTimerInterval = setInterval(() => {
+                timeLeft--;
+                const countdownEl = document.getElementById('qr-countdown');
+                const timerDisplay = document.getElementById('qr-timer-display');
+                const qrContainer = document.getElementById('qr-image-container');
+                const regenContainer = document.getElementById('qr-regenerate-container');
+
+                if(countdownEl) {
+                    let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+                    let s = (timeLeft % 60).toString().padStart(2, '0');
+                    countdownEl.innerText = `${m}:${s}`;
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(qrTimerInterval);
+                    if(timerDisplay) timerDisplay.classList.add('hidden');
+                    if(qrContainer) qrContainer.classList.add('hidden');
+                    if(regenContainer) regenContainer.classList.remove('hidden');
+                }
+            }, 1000);
+        };
+
+        // TEAM REGISTRATION (Updated)
         window.handleFormSubmit = async function(e) {
             e.preventDefault();
             if(State.teams.length >= State.settings.teamLimit) return showToast("Registration Closed. Total Teams Limit reached.", true);
@@ -859,32 +994,61 @@
             
             const fullAddress = `${document.getElementById('reg-village').value}, ${document.getElementById('reg-road').value}, PO: ${document.getElementById('reg-po').value}, PS: ${document.getElementById('reg-ps').value}, ${document.getElementById('reg-dist').value} - ${document.getElementById('reg-pin').value}`;
 
+            // Check if fee is 0 to determine status
+            const entryFee = parseInt(State.settings.entryFee) || 0;
+            const regStatus = entryFee === 0 ? 'Approved' : 'Payment Pending';
+
             State.pendingRegistration = {
                 regNo: regNumber, name: document.getElementById('reg-teamName').value.toUpperCase(), head: document.getElementById('reg-teamHead').value,
                 phone: document.getElementById('reg-phone').value, address: fullAddress,
-                players: [...State.formPlayers], status: 'Payment Pending', timestamp: Date.now()
+                players: [...State.formPlayers], status: regStatus, timestamp: Date.now()
             };
 
             await safeFirebaseCall(set(ref(db, `teams/${regNumber}`), State.pendingRegistration));
             
+            // Bypass Payment View and go straight to PDF if Entry Fee is 0
+            if (entryFee === 0) {
+                const team = State.pendingRegistration;
+                
+                document.getElementById('r-regNo').innerText = team.regNo;
+                document.getElementById('r-date').innerText = new Date(team.timestamp).toLocaleDateString();
+                document.getElementById('r-teamName').innerText = team.name;
+                document.getElementById('r-teamHead').innerText = team.head;
+                document.getElementById('r-phone').innerText = team.phone;
+                document.getElementById('r-address').innerText = team.address;
+                
+                document.getElementById('r-fee-container').style.display = 'none'; 
+                document.getElementById('r-qr-container').style.display = 'none';
+                
+                const rp = document.getElementById('r-playersList'); rp.innerHTML = '';
+                team.players.forEach((p, i) => rp.innerHTML += `<div><span class="text-gray-500 text-xs">${i+1}.</span> ${p}</div>`);
+                document.getElementById('r-tdate').innerText = new Date(State.settings.date).toLocaleString();
+                
+                document.getElementById('main-header').classList.add('hidden');
+                document.getElementById('public-view').classList.add('hidden');
+                document.getElementById('receipt-view').style.display = 'block';
+                window.scrollTo(0,0);
+                
+                btn.innerHTML = `<span>Submit Registration (Free)</span><i class="ph ph-check-circle"></i>`; 
+                btn.disabled = false;
+                
+                showToast("Registration Successful! Please download your receipt.");
+                document.getElementById('registrationForm').reset();
+                State.formPlayers = Array(7).fill('');
+                renderPlayersForm('reg');
+                
+                return;
+            }
+
+            // Normal Flow for Paid Registration
             document.getElementById('pay-reg-no').innerText = regNumber; document.getElementById('pay-amount').innerText = State.settings.entryFee;
             document.getElementById('pub-tab-entry').classList.add('hidden'); document.getElementById('payment-redirect-view').classList.remove('hidden');
 
-            const upiLink = `upi://pay?pa=${State.settings.upiId}&pn=Modern%20Sporting%20Club&am=${State.settings.entryFee}&cu=INR&tn=Reg_${regNumber}`;
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
-            
-            document.getElementById('upi-init-box').innerHTML = `
-                <a href="${upiLink}" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg flex justify-center items-center gap-2 transition mb-3 animate-pulse text-center" onclick="document.getElementById('upi-verify-box').classList.remove('hidden')"><i class="ph ph-device-mobile"></i> Open UPI App to Pay</a>
-                <div class="mt-4 border-t pt-4">
-                    <p class="text-xs text-gray-500 mb-2 font-bold uppercase text-center">If App doesn't open, scan this QR code:</p>
-                    <img src="${qrUrl}" class="mx-auto border p-2 rounded-lg bg-white shadow-sm" alt="UPI QR">
-                    <button onclick="document.getElementById('upi-verify-box').classList.remove('hidden')" class="text-xs text-indigo-600 font-bold mt-2 underline w-full text-center">I have paid using QR</button>
-                </div>
-            `;
+            // Call the new helper function to handle UI and Timer
+            generateUPIPaymentUI(regNumber, State.settings.entryFee);
 
             btn.innerHTML = `<span>Save & Proceed to Pay ₹${State.settings.entryFee}</span><i class="ph ph-arrow-right"></i>`; btn.disabled = false;
         };
-   
         
         window.goBackToApp = function() { 
             document.getElementById('receipt-view').style.display = 'none'; 
@@ -1775,6 +1939,56 @@ window.createManualMatch = async function() {
         };
 
         initFirebase();
+        
+        // --- DIRECT PDF DOWNLOAD LOGIC ---
+
+window.downloadReceiptPDF = function() {
+    const element = document.querySelector('#receipt-view .a4-container');
+    const btn = document.getElementById('receipt-download-btn');
+    const originalText = btn.innerHTML;
+    
+    // লোডিং ইফেক্ট দেখানো
+    btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Downloading...';
+    btn.disabled = true;
+
+    const opt = {
+        margin:       0,
+        filename:     `Receipt_${document.getElementById('r-regNo').innerText}.pdf`,
+        image:        { type: 'jpeg', quality: 1 }, // বেস্ট কোয়ালিটি
+        html2canvas:  { scale: 3, useCORS: true }, // Scale 3 দিলে লেখা একদম ফাটবে না, ঝকঝকে আসবে
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        showToast("PDF Downloaded Successfully!");
+    });
+};
+
+window.downloadSummaryPDF = function() {
+    const element = document.querySelector('#summary-view .a4-container');
+    const btn = document.getElementById('summary-download-btn');
+    const originalText = btn.innerHTML;
+    
+    // লোডিং ইফেক্ট দেখানো
+    btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Downloading...';
+    btn.disabled = true;
+
+    const opt = {
+        margin:       0,
+        filename:     `Match_Summary_${Date.now()}.pdf`,
+        image:        { type: 'jpeg', quality: 1 },
+        html2canvas:  { scale: 3, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save().then(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        showToast("Summary PDF Downloaded Successfully!");
+    });
+};
     </script>
 </body>
 </html>
