@@ -7,6 +7,7 @@
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places&callback=initAddressAutocomplete" async defer></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Phosphor Icons -->
@@ -118,16 +119,22 @@
                         <div class="input-group md:col-span-2"><label>PHONE NUMBER | ফোন নং *</label><div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">+91</span><input type="tel" id="reg-phone" inputmode="numeric" required maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="input-field pl-11"></div></div>
                     </div>
                     <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 space-y-4">
-                        <h3 class="font-semibold text-gray-700 border-b pb-2">TEAM ADDRESS | দলের ঠিকানা</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="input-group"><label>Village / গ্রাম *</label><input type="text" id="reg-village" required class="input-field"></div>
-                            <div class="input-group"><label>Road / রাস্তা *</label><input type="text" id="reg-road" required class="input-field"></div>
-                            <div class="input-group"><label>Post Office / ডাকঘর *</label><input type="text" id="reg-po" required class="input-field"></div>
-                            <div class="input-group"><label>Police Station / থানা *</label><input type="text" id="reg-ps" required class="input-field"></div>
-                            <div class="input-group"><label>Dist. / জেলা *</label><input type="text" id="reg-dist" readonly value="North 24 Parganas" class="input-field bg-gray-200"></div>
-                            <div class="input-group"><label>Pin / পিন কোড *</label><input type="tel" id="reg-pin" inputmode="numeric" required maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="input-field"></div>
-                        </div>
-                    </div>
+    <h3 class="font-semibold text-gray-700 border-b pb-2">TEAM ADDRESS | দলের ঠিকানা</h3>
+    
+    <div class="input-group bg-white p-3 rounded border border-emerald-200 shadow-sm mb-4">
+        <label class="text-emerald-700"><i class="ph ph-map-pin"></i> Search Address / ঠিকানা খুঁজুন (অটো-ফিল)</label>
+        <input type="text" id="address-search" class="input-field border-emerald-300 focus:border-emerald-600" placeholder="Type village, road or city name...">
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="input-group"><label>Village / গ্রাম *</label><input type="text" id="reg-village" required class="input-field"></div>
+        <div class="input-group"><label>Road / রাস্তা *</label><input type="text" id="reg-road" required class="input-field"></div>
+        <div class="input-group"><label>Post Office / ডাকঘর *</label><input type="text" id="reg-po" required class="input-field"></div>
+        <div class="input-group"><label>Police Station / থানা *</label><input type="text" id="reg-ps" required class="input-field"></div>
+        <div class="input-group"><label>Dist. / জেলা *</label><input type="text" id="reg-dist" readonly value="North 24 Parganas" class="input-field bg-gray-200"></div>
+        <div class="input-group"><label>Pin / পিন কোড *</label><input type="tel" id="reg-pin" inputmode="numeric" required maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="input-field"></div>
+    </div>
+</div>
                     <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
                         <div class="flex justify-between items-end border-b pb-2 mb-4">
                             <div><h3 class="font-semibold text-gray-700">Players / খেলোয়াড়</h3></div>
@@ -224,6 +231,31 @@
                         <button onclick="autoGenerateMatches()" class="bg-indigo-600 text-white px-4 py-1.5 rounded text-sm font-bold hover:bg-indigo-700"><i class="ph ph-magic-wand"></i> Auto Pair</button>
                     </div>
                 </div>
+                
+                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 mb-6">
+                    <h3 class="font-bold text-indigo-900 mb-3 text-sm uppercase flex items-center gap-2"><i class="ph ph-plus-circle"></i> Create Match Manually</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div class="input-group">
+                            <label class="text-xs">Team 1 (প্রথম দল)</label>
+                            <select id="manual-match-t1" class="input-field py-2"></select>
+                        </div>
+                        <div class="input-group">
+                            <label class="text-xs">Team 2 (দ্বিতীয় দল)</label>
+                            <select id="manual-match-t2" class="input-field py-2"></select>
+                        </div>
+                        <div class="input-group">
+                            <label class="text-xs">Match Stage</label>
+                            <select id="manual-match-stage" class="input-field py-2">
+                                <option value="League">League Match</option>
+                                <option value="Quarter Final">Quarter Final</option>
+                                <option value="Semi Final">Semi Final</option>
+                                <option value="Final">Final</option>
+                            </select>
+                        </div>
+                        <button onclick="createManualMatch()" class="bg-indigo-600 text-white font-bold py-2 rounded-lg shadow hover:bg-indigo-700 transition">Create Match</button>
+                    </div>
+                </div>
+                
                 <div id="admin-matches-list" class="space-y-4"></div>
             </div>
         </section>
@@ -485,6 +517,15 @@
                         <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-bold shadow hover:bg-indigo-700">Save Match</button>
                     </div>
                 </form>
+                <div class="mt-8 pt-4 border-t-2 border-gray-800 border-dashed text-left">
+                <h4 class="font-bold text-lg mb-2 uppercase">টুর্নামেন্টের নিয়মাবলি (Match Rules):</h4>
+                <ul class="list-disc pl-5 text-sm space-y-1 text-gray-700 font-semibold">
+                    <li>ম্যাচ শুরু হওয়ার অন্তত ৩০ মিনিট আগে মাঠে রিপোর্ট করতে হবে।</li>
+                    <li>আম্পায়ারের সিদ্ধান্তই চূড়ান্ত বলে গণ্য হবে, কোনো তর্কে জড়ানো যাবে না।</li>
+                    <li>নির্ধারিত ওভারের মধ্যে খেলা শেষ করতে হবে, স্লো ওভার রেটের জন্য পেনাল্টি থাকবে।</li>
+                    <li>কমিটি যেকোনো সময় নিয়মাবলি পরিবর্তন বা পরিমার্জন করার অধিকার রাখে।</li>
+                </ul>
+            </div>
             </div>
         </div>
     </div>
@@ -593,6 +634,54 @@
 <footer class="text-center py-6 mt-8 text-gray-500 text-sm font-semibold w-full border-t border-gray-200">
         নকশা,নির্মাণ,প্রকাশনা ও পরিচর্যায় &copy; মডার্ণ স্পোর্টিং ক্লাব
     </footer>
+    
+    <script>
+    // Google Maps Autocomplete Initialize
+    window.initAddressAutocomplete = function() {
+        const input = document.getElementById('address-search');
+        if (!input) return;
+
+        const autocomplete = new google.maps.places.Autocomplete(input, {
+            componentRestrictions: { country: ["in"] }, // শুধুমাত্র ভারতের ঠিকানা দেখাবে
+            fields: ["address_components", "name"],
+            types: ["geocode"]
+        });
+
+        autocomplete.addListener('place_changed', function() {
+            const place = autocomplete.getPlace();
+            if (!place.address_components) return;
+
+            // ডাটা ফিল করার আগে সব ফিল্ড খালি করে নেওয়া হচ্ছে
+            document.getElementById('reg-village').value = '';
+            document.getElementById('reg-road').value = '';
+            document.getElementById('reg-pin').value = '';
+
+            // Google এর ডাটা থেকে ভ্যালু বের করে নির্দিষ্ট ফিল্ডে বসানো
+            for (const component of place.address_components) {
+                const componentType = component.types[0];
+
+                switch (componentType) {
+                    case "route": 
+                        document.getElementById('reg-road').value = component.long_name; 
+                        break;
+                    case "sublocality_level_1":
+                    case "locality": 
+                        document.getElementById('reg-village').value = component.long_name; 
+                        break;
+                    case "postal_code": 
+                        document.getElementById('reg-pin').value = component.long_name; 
+                        break;
+                }
+            }
+
+            // যদি রোড বা ভিলেজ ফাঁকা থাকে, তবে সার্চ করা নামটাই ভিলেজ হিসেবে বসে যাবে
+            if (document.getElementById('reg-village').value === '') {
+                document.getElementById('reg-village').value = place.name || '';
+            }
+        });
+    };
+</script>
+    
     <!-- FIREBASE RTDB CLOUD SYNC & APP LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -702,6 +791,7 @@
                 State.teams = [];
                 if(snapshot.exists()) { snapshot.forEach(c => { State.teams.push({ id: c.key, ...c.val() }); }); }
                 renderTeamsTable();
+                populateManualMatchSelects();
             });
             
             onValue(ref(db, 'matches'), (snapshot) => {
@@ -712,8 +802,16 @@
             renderPlayersForm('reg');
         }
 
-        function updateSettingsUI() {
-            document.getElementById('ui-entryFeeBtn').innerText = State.settings.entryFee;
+     function updateSettingsUI() {
+            const fee = parseInt(State.settings.entryFee) || 0;
+            const submitBtn = document.getElementById('submitRegBtn');
+            
+            if (fee === 0) {
+                submitBtn.innerHTML = `<span>Submit Registration (Free)</span><i class="ph ph-check-circle"></i>`;
+            } else {
+                submitBtn.innerHTML = `<span>Save & Proceed to Pay ₹<span id="ui-entryFeeBtn">${fee}</span></span><i class="ph ph-arrow-right"></i>`;
+            }
+
             document.getElementById('set-fee').value = State.settings.entryFee;
             document.getElementById('set-upi').value = State.settings.upiId;
             document.getElementById('set-playersLimit').value = State.settings.playersLimit;
@@ -723,7 +821,7 @@
             document.getElementById('set-datetime').value = State.settings.date;
             document.getElementById('set-age').value = State.settings.ageLimit || 'Open for all';
         }
-
+     
         window.saveSettings = async function(e) {
             State.settings.entryFee = document.getElementById('set-fee').value;
             State.settings.upiId = document.getElementById('set-upi').value;
@@ -786,37 +884,7 @@
 
             btn.innerHTML = `<span>Save & Proceed to Pay ₹${State.settings.entryFee}</span><i class="ph ph-arrow-right"></i>`; btn.disabled = false;
         };
-
-        window.verifyPayment = async function() {
-            const btn = document.getElementById('verify-btn'); btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Verifying...'; btn.disabled = true;
-            setTimeout(async () => {
-                const data = State.pendingRegistration; if(!data) return;
-                data.status = 'Paid (Verified)';
-                await safeFirebaseCall(update(ref(db, `teams/${data.regNo}`), { status: data.status }));
-
-                document.getElementById('r-fee-container').style.display = 'flex';
-                document.getElementById('r-qr-container').style.display = 'block';
-
-                document.getElementById('r-regNo').innerText = data.regNo; document.getElementById('r-date').innerText = new Date().toLocaleDateString();
-                document.getElementById('r-teamName').innerText = data.name; document.getElementById('r-teamHead').innerText = data.head;
-                document.getElementById('r-phone').innerText = data.phone; document.getElementById('r-address').innerText = data.address;
-                document.getElementById('r-fee').innerText = State.settings.entryFee;
-                
-                const rp = document.getElementById('r-playersList'); rp.innerHTML = '';
-                data.players.forEach((p, i) => rp.innerHTML += `<div><span class="text-gray-500 text-xs">${i+1}.</span> ${p}</div>`);
-                document.getElementById('r-qrCode').src = `https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=REG:${data.regNo}`;
-                document.getElementById('r-tdate').innerText = new Date(State.settings.date).toLocaleString();
-                
-                document.getElementById('payment-redirect-view').classList.add('hidden'); 
-                document.getElementById('receipt-view').style.display = 'block';
-                document.getElementById('main-header').classList.add('hidden'); // Hide header when printing receipt
-                
-                document.getElementById('registrationForm').reset(); State.formPlayers = Array(7).fill(''); renderPlayersForm('reg'); State.pendingRegistration = null;
-                
-                document.getElementById('upi-verify-box').classList.add('hidden');
-                btn.innerHTML = '<i class="ph ph-check-circle"></i> Payment Successful'; btn.disabled = false;
-            }, 2000); 
-        };
+   
         
         window.goBackToApp = function() { 
             document.getElementById('receipt-view').style.display = 'none'; 
@@ -1580,7 +1648,46 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-700 pt-4 mt-4"><div class="bg-white/5 p-3 rounded"><div class="text-xs text-gray-400 mb-2 uppercase font-bold tracking-widest">Batting</div><div class="font-bold flex justify-between text-sm mb-1 ${lm.striker.name ? 'text-white' : 'text-gray-600'}"><span>${lm.striker.name || 'Striker'} *</span> <span>${lm.striker.runs}(${lm.striker.balls})</span></div><div class="font-bold flex justify-between text-sm ${lm.runner.name ? 'text-gray-300' : 'text-gray-600'}"><span>${lm.runner.name || 'Runner'}</span> <span>${lm.runner.runs}(${lm.runner.balls})</span></div></div><div class="bg-white/5 p-3 rounded flex flex-col justify-center"><div class="text-xs text-gray-400 mb-2 uppercase font-bold tracking-widest">This Over</div><div class="flex gap-1 flex-wrap text-sm">${lm.currentOver.length > 0 ? lm.currentOver.join('') : '<span class="text-gray-600">.</span>'}</div></div></div>
                 </div>`;
         }
+// ড্রপডাউনে শুধু Approved টিমগুলো লোড করার ফাংশন
+function populateManualMatchSelects() {
+    const t1 = document.getElementById('manual-match-t1');
+    const t2 = document.getElementById('manual-match-t2');
+    if(!t1 || !t2) return;
+    
+    t1.innerHTML = '<option value="">Select Team 1...</option>';
+    t2.innerHTML = '<option value="">Select Team 2...</option>';
+    
+    // শুধুমাত্র যারা পেমেন্ট করে Approved হয়েছে বা Free-তে Approved হয়েছে
+    const approvedTeams = State.teams.filter(t => t.status === 'Approved' || t.status.includes('Paid'));
+    
+    approvedTeams.forEach(t => {
+        const opt = `<option value="${t.id}">${t.name}</option>`;
+        t1.innerHTML += opt;
+        t2.innerHTML += opt;
+    });
+}
 
+// ম্যানুয়াল ম্যাচ তৈরি করার কোর ফাংশন
+window.createManualMatch = async function() {
+    const t1Id = document.getElementById('manual-match-t1').value;
+    const t2Id = document.getElementById('manual-match-t2').value;
+    const stage = document.getElementById('manual-match-stage').value;
+
+    if(!t1Id || !t2Id) return showToast("দয়া করে দুটি দল নির্বাচন করুন", true);
+    if(t1Id === t2Id) return showToast("দুটি দল একই হতে পারে না!", true);
+
+    const team1 = State.teams.find(t => t.id === t1Id);
+    const team2 = State.teams.find(t => t.id === t2Id);
+
+    const mId = 'M' + Date.now();
+    await safeFirebaseCall(set(ref(db, `matches/${mId}`), { 
+        id: mId, team1: team1, team2: team2, stage: stage, status: 'Scheduled', time: State.settings.date 
+    }));
+
+    showToast("ম্যানুয়াল ম্যাচ সফলভাবে তৈরি হয়েছে!");
+    document.getElementById('manual-match-t1').value = '';
+    document.getElementById('manual-match-t2').value = '';
+};
         // TABS & APP NAVIGATION
         window.switchTab = function(mode, tabId) {
             document.querySelectorAll(`.${mode === 'public' ? 'pub' : 'adm'}-tab-btn`).forEach(b => { 
