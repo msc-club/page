@@ -27,11 +27,15 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
         .a4-container { width: 210mm; min-height: 297mm; margin: 0 auto; background: white; padding: 20mm; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        #pdf-wrapper { width: 210mm; margin: 0 auto; background: transparent; }
+        
         @media print {
             body { background: white; }
             #app-view, #admin-view, #payment-redirect-view { display: none !important; }
+            #pdf-wrapper { width: 100%; }
             .a4-container { width: 100%; min-height: auto; margin: 0; padding: 0; box-shadow: none; }
             .print-action-bar { display: none !important; }
+            .page-break-print { page-break-before: always; break-before: page; }
             @page { size: A4; margin: 15mm; }
         }
 
@@ -48,6 +52,126 @@
         #sync-status { transition: all 0.3s; }
         .sync-active { color: #10b981; }
         .sync-offline { color: #ef4444; }
+        
+        /* =========================================
+   DYNAMIC THEMES (PREMIUM & DEEP VIOLET)
+   ========================================= */
+
+/* 1. STANDARD PREMIUM THEME (Public/Logged Out) */
+body.theme-premium {
+    background: linear-gradient(135deg, #f0fdf4 0%, #e2e8f0 100%) !important;
+}
+body.theme-premium .glass-card {
+    background: rgba(255, 255, 255, 0.90) !important;
+    box-shadow: 0 20px 40px -5px rgba(4, 120, 87, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+}
+
+/* 2. DEEP VIOLET THEME (Admin/Logged In) */
+body.theme-violet {
+    background: #170f2e !important; /* Deep Violet Base Background */
+    color: #e9d5ff !important;
+}
+body.theme-violet header {
+    background-color: #2e1065 !important;
+    border-bottom: 1px solid #4c1d95 !important;
+}
+body.theme-violet header h1, 
+body.theme-violet header .text-gray-900 {
+    color: #ffffff !important;
+}
+body.theme-violet header .text-gray-500 {
+    color: #c4b5fd !important;
+}
+
+/* Cards & Containers in Violet Theme */
+body.theme-violet .glass-card,
+body.theme-violet .bg-white {
+    background-color: #281453 !important;
+    border: 1px solid #4c1d95 !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    color: #ede9fe !important;
+}
+
+/* Text Colors */
+body.theme-violet .text-gray-800, 
+body.theme-violet .text-gray-900 {
+    color: #f5f3ff !important;
+}
+body.theme-violet .text-gray-700,
+body.theme-violet .text-gray-600,
+body.theme-violet .text-gray-500,
+body.theme-violet .text-gray-400 {
+    color: #c4b5fd !important;
+}
+
+/* Overriding Emerald/Green to Violet */
+body.theme-violet .text-emerald-700, 
+body.theme-violet .text-emerald-600,
+body.theme-violet .text-emerald-800 {
+    color: #a78bfa !important; 
+}
+body.theme-violet .bg-emerald-700, 
+body.theme-violet .bg-emerald-600,
+body.theme-violet .bg-gray-900 {
+    background-color: #6d28d9 !important;
+    color: #ffffff !important;
+    border-color: #5b21b6 !important;
+}
+body.theme-violet .bg-emerald-100, 
+body.theme-violet .bg-emerald-50 {
+    background-color: #4c1d95 !important;
+    color: #ddd6fe !important;
+    border-color: #5b21b6 !important;
+}
+
+/* Sub-sections & Inputs */
+body.theme-violet .bg-gray-50, 
+body.theme-violet .bg-gray-100 {
+    background-color: #3b1c73 !important;
+    border-color: #4c1d95 !important;
+}
+body.theme-violet .bg-indigo-50, 
+body.theme-violet .bg-indigo-100 {
+    background-color: #4c1d95 !important;
+    border-color: #5b21b6 !important;
+    color: #ede9fe !important;
+}
+body.theme-violet .text-indigo-900,
+body.theme-violet .text-indigo-800,
+body.theme-violet .text-indigo-700 {
+    color: #d8b4fe !important;
+}
+body.theme-violet .input-field {
+    background-color: #1f0d3d !important;
+    border-color: #5b21b6 !important;
+    color: #ffffff !important;
+}
+body.theme-violet .input-field:focus {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2) !important;
+}
+
+/* Table & Borders */
+body.theme-violet border-b, 
+body.theme-violet border-t, 
+body.theme-violet .border-gray-200, 
+body.theme-violet .border-gray-100 {
+    border-color: #4c1d95 !important;
+}
+body.theme-violet th {
+    background-color: #3b1c73 !important;
+    color: #d8b4fe !important;
+    border-color: #4c1d95 !important;
+}
+body.theme-violet td {
+    border-color: #4c1d95 !important;
+}
+body.theme-violet tr:hover {
+    background-color: #4c1d95 !important;
+}
+        
+        
     </style>
 </head>
 <body class="antialiased relative">
@@ -91,6 +215,10 @@
             <nav id="publicNav" class="flex overflow-x-auto hide-scrollbar gap-1 mt-1 border-t border-gray-200">
                 <button onclick="switchTab('public', 'entry')" id="pub-tab-btn-entry" class="pub-tab-btn active flex-1 py-3 px-4 text-center font-semibold text-emerald-700 border-b-2 border-emerald-700">ENTRY <span class="text-[10px] block font-normal opacity-80">এন্ট্রি</span></button>
                 <button onclick="switchTab('public', 'scheduled')" id="pub-tab-btn-scheduled" class="pub-tab-btn flex-1 py-3 px-4 text-center font-medium text-gray-500 border-b-2 border-transparent hover:text-emerald-700">SCHEDULED <span class="text-[10px] block font-normal opacity-80">সূচি</span></button>
+                
+                <button onclick="switchTab('public', 'participants')" id="pub-tab-btn-participants" class="pub-tab-btn flex-1 py-3 px-4 text-center font-medium text-gray-500 border-b-2 border-transparent hover:text-emerald-700">
+    PARTICIPANTS <span class="text-[10px] block font-normal opacity-80">দলসমূহ</span>
+</button>
                 <button onclick="switchTab('public', 'live')" id="pub-tab-btn-live" class="pub-tab-btn flex-1 py-3 px-4 text-center font-medium text-gray-500 border-b-2 border-transparent hover:text-emerald-700 flex flex-col items-center">
                     <span class="flex items-center gap-1">LIVE SCORE <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span></span></span>
                     <span class="text-[10px] block font-normal opacity-80">লাইভ স্কোর</span>
@@ -119,29 +247,30 @@
                         <div class="input-group"><label>TEAM/CLUB HEAD | প্রধানের নাম *</label><input type="text" id="reg-teamHead" required class="input-field"></div>
                         <div class="input-group md:col-span-2"><label>PHONE NUMBER | ফোন নং *</label><div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">+91</span><input type="tel" id="reg-phone" inputmode="numeric" required maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="input-field pl-11"></div></div>
                     </div>
+                    
                     <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 space-y-4">
-    <h3 class="font-semibold text-gray-700 border-b pb-2">TEAM ADDRESS | দলের ঠিকানা</h3>
-    
-    <div class="input-group bg-white p-3 rounded border border-emerald-200 shadow-sm mb-4">
-    <label class="text-emerald-700"><i class="ph ph-map-pin"></i> Search Address / ঠিকানা খুঁজুন (অটো-ফিল)</label>
-    <div class="flex flex-col md:flex-row gap-2">
-        <input type="text" id="address-search" class="input-field border-emerald-300 focus:border-emerald-600 flex-1" placeholder="Type village, road or city name...">
-        
-        <button type="button" onclick="getLocation()" class="text-sm font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center gap-2 transition whitespace-nowrap">
-            <i class="ph-fill ph-crosshair"></i> Use My Current Location
-        </button>
-    </div>
-</div>
+                        <h3 class="font-semibold text-gray-700 border-b pb-2">TEAM ADDRESS | দলের ঠিকানা</h3>
+                        
+                        <div class="input-group bg-white p-3 rounded border border-emerald-200 shadow-sm mb-4">
+                            <label class="text-emerald-700"><i class="ph ph-map-pin"></i> Search Address / ঠিকানা খুঁজুন (অটো-ফিল)</label>
+                            <div class="flex flex-col md:flex-row gap-2">
+                                <input type="text" id="address-search" class="input-field border-emerald-300 focus:border-emerald-600 flex-1" placeholder="Type village, road or city name...">
+                                <button type="button" onclick="getLocation()" class="text-sm font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center gap-2 transition whitespace-nowrap">
+                                    <i class="ph-fill ph-crosshair"></i> Use My Current Location
+                                </button>
+                            </div>
+                        </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="input-group"><label>Village / গ্রাম *</label><input type="text" id="reg-village" required class="input-field"></div>
-        <div class="input-group"><label>Road / রাস্তা *</label><input type="text" id="reg-road" required class="input-field"></div>
-        <div class="input-group"><label>Post Office / ডাকঘর *</label><input type="text" id="reg-po" required class="input-field"></div>
-        <div class="input-group"><label>Police Station / থানা *</label><input type="text" id="reg-ps" required class="input-field"></div>
-        <div class="input-group"><label>Dist. / জেলা *</label><input type="text" id="reg-dist" readonly value="North 24 Parganas" class="input-field bg-gray-200"></div>
-        <div class="input-group"><label>Pin / পিন কোড *</label><input type="tel" id="reg-pin" inputmode="numeric" required maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="input-field"></div>
-    </div>
-</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="input-group"><label>Village / গ্রাম *</label><input type="text" id="reg-village" required class="input-field"></div>
+                            <div class="input-group"><label>Road / রাস্তা *</label><input type="text" id="reg-road" required class="input-field"></div>
+                            <div class="input-group"><label>Post Office / ডাকঘর *</label><input type="text" id="reg-po" required class="input-field"></div>
+                            <div class="input-group"><label>Police Station / থানা *</label><input type="text" id="reg-ps" required class="input-field"></div>
+                            <div class="input-group"><label>Dist. / জেলা *</label><input type="text" id="reg-dist" readonly value="North 24 Parganas" class="input-field bg-gray-200"></div>
+                            <div class="input-group"><label>Pin / পিন কোড *</label><input type="tel" id="reg-pin" inputmode="numeric" required maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="input-field"></div>
+                        </div>
+                    </div>
+                    
                     <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
                         <div class="flex justify-between items-end border-b pb-2 mb-4">
                             <div><h3 class="font-semibold text-gray-700">Players / খেলোয়াড়</h3></div>
@@ -149,6 +278,17 @@
                         </div>
                         <div id="playersList" class="space-y-3"></div>
                     </div>
+
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 shadow-sm mt-4">
+                        <div class="flex items-start gap-3 cursor-pointer select-none" onclick="openRulesModal()">
+                            <div id="custom-checkbox-ui" class="mt-1 w-5 h-5 flex-shrink-0 flex items-center justify-center border border-gray-400 rounded bg-white transition-colors"></div>
+                            <input type="checkbox" id="reg-agree-checkbox" class="hidden">
+                            <span class="text-sm font-bold text-gray-800 leading-snug">
+                                আমি এই টুর্ণামেন্টে নির্ধারিত সকল নিয়ম কানুন মেনে সুষ্ঠুভাবে খেলায় অংশ গ্রহণ করিলাম। আমার সূত্রে আগত সমর্থক ও নীন্মোক্ত কোনো খেলোয়াড় কোন রকন বিশৃঙ্খলা সৃষ্টি করলে আইনত দায়ভার আমার।
+                            </span>
+                        </div>
+                    </div>
+
                     <button id="submitRegBtn" type="submit" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-lg py-4 rounded-xl shadow-lg transition flex justify-center items-center gap-2">
                         <span>Save & Proceed to Pay ₹<span id="ui-entryFeeBtn"></span></span><i class="ph ph-arrow-right"></i>
                     </button>
@@ -178,7 +318,24 @@
                 </div>
             </div>
         </section>
-
+<section id="pub-tab-participants" class="pub-tab-content hidden">
+    <div class="glass-card rounded-2xl p-6">
+        <h2 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2"><i class="ph ph-users-three mr-2 text-emerald-600"></i>Registered Teams (অংশগ্রহণকারী দলসমূহ)</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[600px]">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600 text-sm">
+                        <th class="p-3 border-b rounded-tl-lg">Regd. No.</th>
+                        <th class="p-3 border-b">Team Name</th>
+                        <th class="p-3 border-b text-center rounded-tr-lg">Download PDF</th>
+                    </tr>
+                </thead>
+                <tbody id="public-participants-list" class="text-sm">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</section>
         <!-- SCHEDULED TAB -->
         <section id="pub-tab-scheduled" class="pub-tab-content hidden">
             <div class="glass-card rounded-2xl p-6">
@@ -208,11 +365,39 @@
                     <div class="input-group"><label>Total Teams Limit</label><input type="number" id="set-teamLimit" class="input-field" value="16"></div>
                     <div class="input-group"><label>Max Players / Team</label><input type="number" id="set-playersLimit" class="input-field" value="9"></div>
                     <div class="input-group"><label>Total Overs / Match</label><input type="number" id="set-totalOvers" class="input-field" value="10"></div>
-                    <div class="input-group"><label>Max Overs / Bowler</label><input type="number" id="set-maxOvers" class="input-field" value="2"></div>
+                    <div class="input-group md:col-span-2 bg-indigo-50 p-4 rounded-xl border border-indigo-200">
+    <div class="flex justify-between items-center mb-3 border-b border-indigo-200 pb-2">
+        <label class="!mb-0 text-indigo-900 font-bold"><i class="ph ph-sliders mr-1"></i> Bowler Over Limits (ডায়নামিক কনফিগারেশন)</label>
+        <button type="button" onclick="addBowlerRuleRow()" class="bg-indigo-600 text-white px-3 py-1 rounded text-xs font-bold shadow hover:bg-indigo-700">+ Add Rule</button>
+    </div>
+    <div id="bowler-rules-container" class="space-y-3 mb-3">
+        </div>
+    <div class="bg-white p-3 rounded border border-indigo-100 text-sm font-bold text-gray-700 flex flex-col md:flex-row justify-between items-center">
+        <div id="bowler-rules-calc" class="text-indigo-600">হিসাব: 0</div>
+        <div class="text-red-600 mt-2 md:mt-0">মোট ম্যাচ ওভার: <span id="bowler-rules-total" class="text-xl">0</span></div>
+    </div>
+</div>
                     <div class="input-group"><label>Tournament Date</label><input type="datetime-local" id="set-datetime" class="input-field"></div>
                     <div class="input-group"><label>Age Limit</label><input type="text" id="set-age" class="input-field" value="Open for all"></div>
                 </div>
-                <button onclick="saveSettings(event)" class="mt-6 bg-gray-900 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-gray-800">Save to Cloud <i class="ph ph-cloud-arrow-up"></i></button>
+
+                <!-- Admin Section for Tournament Rules -->
+                <div class="mt-8 border-t-2 border-gray-100 pt-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2"><i class="ph ph-gavel"></i> Tournament Rules (নিয়মাবলি)</h3>
+                    <div id="admin-rules-list" class="space-y-2 mb-4"></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-rule-input" class="input-field flex-1" placeholder="Type new rule (e.g., প্লেড প্লেয়ার খেলা নেই।)">
+                        <button type="button" onclick="addAdminRule()" class="bg-emerald-600 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-emerald-700 transition">Add</button>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2 font-semibold">* This rules list will dynamically appear in the Registration Agreement Modal.</p>
+                </div>
+
+<div class="input-group mt-6">
+    <label>Tournament Rules / নিয়মাবলি (প্রতিটি নিয়ম নতুন লাইনে লিখুন)</label>
+    <textarea id="set-rules" class="input-field" rows="5" placeholder="১. ম্যাচ শুরু হওয়ার অন্তত ৩০ মিনিট আগে মাঠে রিপোর্ট করতে হবে..."></textarea>
+</div>
+
+                <button onclick="saveSettings(event)" class="mt-8 bg-gray-900 text-white px-8 py-3 rounded-lg font-bold hover:bg-gray-800 w-full md:w-auto transition shadow-lg text-center flex items-center justify-center gap-2">Save All Settings to Cloud <i class="ph ph-cloud-arrow-up text-xl"></i></button>
             </div>
         </section>
 
@@ -268,6 +453,7 @@
         </section>
 
         <section id="adm-tab-score" class="adm-tab-content hidden">
+            <!-- Score entry components -->
             <div id="score-setup-panel" class="bg-white rounded-xl shadow p-6 border-t-4 border-gray-900 mb-4">
                 <h2 class="text-lg font-bold mb-4">Initialize Match Setup</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
@@ -380,6 +566,25 @@
             </div>
         </section>
     </main>
+
+    <!-- Terms and Conditions Public Modal -->
+    <div id="rulesModal" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-[110] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl relative flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b flex justify-between items-center bg-amber-50 rounded-t-2xl">
+                <h2 class="text-2xl font-bold text-amber-900 flex items-center gap-2"><i class="ph ph-gavel"></i> টুর্নামেন্টের নিয়মাবলি</h2>
+            </div>
+            <div class="p-6 overflow-y-auto">
+                <p class="text-sm text-red-600 mb-4 font-bold border-b border-red-100 pb-3">অনুগ্রহ করে নিচের সকল শর্তাবলী পড়ে ও মেনে নিয়ে টিক দিন, তবেই রেজিস্ট্রেশন সম্পন্ন হবে:</p>
+                <div id="modal-rules-container" class="space-y-3">
+                    <!-- Dynamic Rule Checkboxes Injected Here -->
+                </div>
+            </div>
+            <div class="p-5 border-t bg-gray-50 flex flex-col sm:flex-row gap-3 rounded-b-2xl">
+                <button onclick="cancelRegistrationRules()" class="flex-1 bg-red-100 text-red-700 py-3 rounded-xl font-bold hover:bg-red-200 transition border border-red-200">Cancel Registration / বাতিল</button>
+                <button id="accept-rules-btn" onclick="acceptRegistrationRules()" disabled class="flex-1 bg-gray-300 text-gray-500 py-3 rounded-xl font-bold transition cursor-not-allowed">Accept & Proceed / গ্রহণ করুন</button>
+            </div>
+        </div>
+    </div>
 
     <!-- ADMIN: VIEW TEAM DETAILS MODAL -->
     <div id="adminTeamDetailsModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] flex items-center justify-center p-4">
@@ -524,56 +729,93 @@
                         <button type="submit" class="flex-1 bg-indigo-600 text-white py-3 rounded-lg font-bold shadow hover:bg-indigo-700">Save Match</button>
                     </div>
                 </form>
-                <div class="mt-8 pt-4 border-t-2 border-gray-800 border-dashed text-left">
-                <h4 class="font-bold text-lg mb-2 uppercase">টুর্নামেন্টের নিয়মাবলি (Match Rules):</h4>
-                <ul class="list-disc pl-5 text-sm space-y-1 text-gray-700 font-semibold">
-                    <li>ম্যাচ শুরু হওয়ার অন্তত ৩০ মিনিট আগে মাঠে রিপোর্ট করতে হবে।</li>
-                    <li>আম্পায়ারের সিদ্ধান্তই চূড়ান্ত বলে গণ্য হবে, কোনো তর্কে জড়ানো যাবে না।</li>
-                    <li>নির্ধারিত ওভারের মধ্যে খেলা শেষ করতে হবে, স্লো ওভার রেটের জন্য পেনাল্টি থাকবে।</li>
-                    <li>কমিটি যেকোনো সময় নিয়মাবলি পরিবর্তন বা পরিমার্জন করার অধিকার রাখে।</li>
-                </ul>
-            </div>
             </div>
         </div>
     </div>
     
-    <!-- PDF REGISTRATION RECEIPT VIEW -->
+    <!-- Login Modal -->
+    <div id="loginModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl relative">
+            <button onclick="hideLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800"><i class="ph ph-x-bold text-xl"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-center">Back Office Login</h2>
+            <div class="space-y-4">
+                <div class="input-group"><label>Username</label><input type="text" id="login-user" class="input-field" placeholder="ইউজার নেম"></div>
+                <div class="input-group"><label>Password</label><input type="password" id="login-pass" class="input-field" placeholder="পাসওয়ার্ড"></div>
+                <button onclick="performLogin()" class="w-full bg-gray-900 text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition">Login</button>
+            </div>
+        </div>
+    </div>
+
     <div id="receipt-view" class="hidden min-h-screen bg-gray-200 py-8 px-4">
         <div class="print-action-bar max-w-[210mm] mx-auto mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow">
             <button onclick="goBackToApp()" class="text-gray-600 font-bold hover:text-black flex items-center gap-1"><i class="ph ph-arrow-left"></i> Back</button>
-            <button onclick="window.print()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-emerald-700"><i class="ph ph-printer"></i> Print / Save PDF</button>
+            <button onclick="window.print()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-emerald-700"><i class="ph ph-printer"></i> Print</button>
             <button id="receipt-download-btn" onclick="downloadReceiptPDF()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-emerald-700">
-    <i class="ph ph-download-simple"></i> Download PDF
-</button>
+                <i class="ph ph-download-simple"></i> Download PDF
+            </button>
         </div>
-        <div class="a4-container font-serif border border-gray-300 bg-white">
-            <div class="text-center mb-6">
-                <h1 class="text-3xl font-bold tracking-wider mb-2 uppercase">Modern Sporting Club</h1>
-                <p class="text-sm font-medium">Itinda Road, Dhaltitha, Basirhat, North 24 Parganas</p>
-                <hr class="border-t-2 border-black mt-4 mb-1"><hr class="border-t border-black">
+
+        <div id="pdf-render-target">
+            <div class="a4-container font-serif border border-gray-300 bg-white relative mb-8">
+                <div class="text-center mb-6">
+                    <h1 class="text-3xl font-bold tracking-wider mb-1 uppercase">Modern Sporting Club</h1>
+                    <p class="text-sm font-bold tracking-widest uppercase">ESTD-1985</p>
+                    <p class="text-sm font-medium">Itinda Road, Dhaltitha, Basirhat, North 24 Pgs, WB</p>
+                    <hr class="border-t-2 border-black mt-4 mb-1"><hr class="border-t border-black">
+                </div>
+                <div class="flex justify-between items-center mb-8">
+                    <div class="font-bold text-lg border-2 border-black px-3 py-1">Registration No: <span id="r-regNo"></span></div>
+                    <div class="font-semibold text-md">Date: <span id="r-date"></span></div>
+                </div>
+                <div class="space-y-4 mb-8 text-[15px]">
+                    <div class="flex"><span class="w-48 font-bold">Team Name:</span><span id="r-teamName" class="flex-1 border-b border-dashed border-gray-400 uppercase font-bold"></span></div>
+                    <div class="flex"><span class="w-48 font-bold">Team Head Name:</span><span id="r-teamHead" class="flex-1 border-b border-dashed border-gray-400"></span></div>
+                    <div class="flex"><span class="w-48 font-bold">Team Address:</span><span id="r-address" class="flex-1 border-b border-dashed border-gray-400 leading-tight"></span></div>
+                    <div class="flex"><span class="w-48 font-bold">Head Mobile Number:</span><span class="flex-1 border-b border-dashed border-gray-400 font-mono"><span id="r-phone"></span></span></div>
+                    <div class="flex" id="r-fee-container"><span class="w-48 font-bold">Pay Amount:</span><span class="flex-1 border-b border-dashed border-gray-400 text-emerald-700 font-bold"><span id="r-fee"></span> (<span id="r-fee-words" class="capitalize"></span>)</span></div>
+                </div>
+                <div class="mb-8">
+                    <h3 class="font-bold mb-3 border-b border-black pb-1 inline-block">Players Name</h3>
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-[15px]" id="r-playersList"></div>
+                </div>
             </div>
-            <div class="flex justify-between items-center mb-8">
-                <div class="font-bold text-lg border-2 border-black px-3 py-1">Registration No: <span id="r-regNo"></span></div>
-                <div class="font-semibold text-md">Date: <span id="r-date"></span></div>
-            </div>
-            <div class="space-y-4 mb-8 text-[15px]">
-                <div class="flex"><span class="w-48 font-bold">Team Name:</span><span id="r-teamName" class="flex-1 border-b border-dashed border-gray-400 uppercase font-bold"></span></div>
-                <div class="flex"><span class="w-48 font-bold">Leader Name:</span><span id="r-teamHead" class="flex-1 border-b border-dashed border-gray-400"></span></div>
-                <div class="flex"><span class="w-48 font-bold">Phone No.:</span><span class="flex-1 border-b border-dashed border-gray-400 font-mono"><span id="r-phone"></span></span></div>
-                <div class="flex"><span class="w-48 font-bold">Address:</span><span id="r-address" class="flex-1 border-b border-dashed border-gray-400"></span></div>
-                <div class="flex" id="r-fee-container"><span class="w-48 font-bold">Payment Status:</span><span class="flex-1 border-b border-dashed border-gray-400 text-emerald-700 font-bold">PAID (₹<span id="r-fee"></span>)</span></div>
-            </div>
-            <div class="mb-8">
-                <h3 class="font-bold mb-3 border-b border-black pb-1 inline-block">Registered Players</h3>
-                <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-[15px]" id="r-playersList"></div>
-            </div>
-            <div class="mt-auto absolute bottom-12 left-0 w-full px-[20mm]">
-                <div class="flex justify-between items-end">
-                    <div class="space-y-2 text-sm">
-                        <div class="flex gap-2"><span class="font-bold">Tourn. Date:</span><span id="r-tdate" class="border-b border-dashed border-gray-400 w-48"></span></div>
-                        <div class="mt-4 pt-4 text-xs font-bold text-gray-500 uppercase tracking-widest border-t border-gray-300 inline-block">Authorized Document</div>
+
+            <div class="a4-container font-serif border border-gray-300 bg-white relative print-page-break" style="page-break-before: always;">
+                <div class="text-center mb-6">
+                    <h1 class="text-3xl font-bold tracking-wider mb-1 uppercase">Modern Sporting Club</h1>
+                    <p class="text-sm font-bold tracking-widest uppercase">ESTD-1985</p>
+                    <p class="text-sm font-medium">Itinda Road, Dhaltitha, Basirhat, North 24 Pgs, WB</p>
+                    <hr class="border-t-2 border-black mt-4 mb-1"><hr class="border-t border-black">
+                </div>
+                <div class="flex justify-between items-center mb-6">
+                    <div class="font-bold text-md">Team Registration No: <span id="r2-regNo"></span></div>
+                    <div class="font-semibold text-md">Date: <span id="r2-date"></span></div>
+                </div>
+                <div class="mb-6 space-y-1">
+                    <div class="font-bold text-lg">For,</div>
+                    <div class="font-bold text-lg uppercase text-emerald-800" id="r2-teamName"></div>
+                    <div class="text-md font-medium" id="r2-address"></div>
+                </div>
+                <div class="mb-8 mt-8">
+                    <h3 class="font-bold text-lg mb-3 underline decoration-gray-400">Team Rules (Saved Admin):</h3>
+                    <ul class="list-disc pl-6 space-y-2 text-[15px] font-medium text-gray-800">
+                        <li>ম্যাচ শুরু হওয়ার অন্তত ৩০ মিনিট আগে মাঠে রিপোর্ট করতে হবে।</li>
+                        <li>আম্পায়ারের সিদ্ধান্তই চূড়ান্ত বলে গণ্য হবে, কোনো তর্কে জড়ানো যাবে না।</li>
+                        <li>নির্ধারিত ওভারের মধ্যে খেলা শেষ করতে হবে, স্লো ওভার রেটের জন্য পেনাল্টি থাকবে।</li>
+                        <li>কমিটি যেকোনো সময় নিয়মাবলি পরিবর্তন বা পরিমার্জন করার অধিকার রাখে।</li>
+                    </ul>
+                </div>
+                <div class="mt-12">
+                    <h3 class="font-bold text-lg mb-2 underline decoration-gray-400">Rules Declaration:</h3>
+                    <p class="text-[15px] italic mb-16 text-gray-700 leading-relaxed">I, the undersigned, hereby declare that I have read and understood all the rules and regulations of the Modern Sporting Club tournament. I agree to abide by these rules and ensure my team follows them strictly. I understand that any violation may result in disqualification.</p>
+                    
+                    <div class="flex justify-end pr-8">
+                        <div class="text-center">
+                            <div class="font-bold text-xl text-indigo-700 font-sans tracking-wide" id="r2-teamHead-sign"></div>
+                            <hr class="border-t-2 border-gray-800 w-64 mx-auto mt-2 mb-1">
+                            <div class="font-bold text-sm text-gray-600 uppercase">Digitally Signed by Team Head</div>
+                        </div>
                     </div>
-                    <div class="text-center" id="r-qr-container"><img id="r-qrCode" src="" alt="QR" class="w-24 h-24 border p-1"></div>
                 </div>
             </div>
         </div>
@@ -584,7 +826,7 @@
         <div class="print-action-bar max-w-[210mm] mx-auto mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow">
             <button onclick="goBackToAppFromSummary()" class="text-gray-600 font-bold hover:text-black flex items-center gap-1"><i class="ph ph-arrow-left"></i> Back</button>
             <button onclick="window.print()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-indigo-700"><i class="ph ph-printer"></i> Print / Download PDF</button>
-            
+            <button id="summary-download-btn" onclick="downloadSummaryPDF()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg font-bold shadow hover:bg-indigo-700"><i class="ph ph-download-simple"></i> Download PDF</button>
         </div>
         <div class="a4-container font-sans border border-gray-300 bg-white">
             <div class="text-center mb-6 pb-4 border-b-2 border-gray-800">
@@ -606,7 +848,6 @@
             </div>
 
             <div class="grid grid-cols-2 gap-8">
-                <!-- Team 1 Scorecard -->
                 <div>
                     <h3 id="s-t1-head" class="font-bold text-lg mb-3 pb-2 border-b-2 border-indigo-200 text-indigo-900 uppercase">Team 1</h3>
                     <table class="w-full text-sm text-left">
@@ -614,7 +855,6 @@
                         <tbody id="s-t1-players"></tbody>
                     </table>
                 </div>
-                <!-- Team 2 Scorecard -->
                 <div>
                     <h3 id="s-t2-head" class="font-bold text-lg mb-3 pb-2 border-b-2 border-emerald-200 text-emerald-900 uppercase">Team 2</h3>
                     <table class="w-full text-sm text-left">
@@ -623,26 +863,11 @@
                     </table>
                 </div>
             </div>
-            
-            <div class="mt-12 text-center text-xs font-bold text-gray-400 uppercase border-t pt-4">
-                System Generated Official Document
-            </div>
+            <div class="mt-12 text-center text-xs font-bold text-gray-400 uppercase border-t pt-4">System Generated Official Document</div>
         </div>
     </div>
 
-    <!-- Login Modal -->
-    <div id="loginModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl p-8 w-full max-w-sm shadow-2xl relative">
-            <button onclick="hideLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-800"><i class="ph ph-x-bold text-xl"></i></button>
-            <h2 class="text-2xl font-bold mb-6 text-center">Back Office Login</h2>
-            <div class="space-y-4">
-                <div class="input-group"><label>Username</label><input type="text" id="login-user" class="input-field" placeholder="ইউজার নেম"></div>
-                <div class="input-group"><label>Password</label><input type="password" id="login-pass" class="input-field" placeholder="পাসওয়ার্ড"></div>
-                <button onclick="performLogin()" class="w-full bg-gray-900 text-white font-bold py-3 rounded-lg hover:bg-gray-800 transition">Login</button>
-            </div>
-        </div>
-    </div>
-<footer class="text-center py-6 mt-8 text-gray-500 text-sm font-semibold w-full border-t border-gray-200">
+    <footer class="text-center py-6 mt-8 text-gray-500 text-sm font-semibold w-full border-t border-gray-200">
         নকশা,নির্মাণ,প্রকাশনা ও পরিচর্যায় &copy; মডার্ণ স্পোর্টিং ক্লাব
     </footer>
     
@@ -662,12 +887,10 @@
             const place = autocomplete.getPlace();
             if (!place.address_components) return;
 
-            // ডাটা ফিল করার আগে সব ফিল্ড খালি করে নেওয়া হচ্ছে
             document.getElementById('reg-village').value = '';
             document.getElementById('reg-road').value = '';
             document.getElementById('reg-pin').value = '';
 
-            // Google এর ডাটা থেকে ভ্যালু বের করে নির্দিষ্ট ফিল্ডে বসানো
             for (const component of place.address_components) {
                 const componentType = component.types[0];
 
@@ -684,8 +907,6 @@
                         break;
                 }
             }
-
-            // যদি রোড বা ভিলেজ ফাঁকা থাকে, তবে সার্চ করা নামটাই ভিলেজ হিসেবে বসে যাবে
             if (document.getElementById('reg-village').value === '') {
                 document.getElementById('reg-village').value = place.name || '';
             }
@@ -693,72 +914,65 @@
     };
     
     window.getLocation = function() {
-    const btn = event.currentTarget;
-    const originalText = btn.innerHTML;
-    
-    // ব্রাউজারে Geolocation সাপোর্ট করে কিনা চেক করা
-    if (!navigator.geolocation) {
-        showToast("আপনার ব্রাউজার লোকেশন সাপোর্ট করে না।", true);
-        return;
-    }
-
-    btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Locating...';
-
-    navigator.geolocation.getCurrentPosition(
-        // Success Callback
-        async (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            
-            // Google Maps Geocoder দিয়ে Lat/Lng থেকে ঠিকানা বের করা
-            const geocoder = new google.maps.Geocoder();
-            const latlng = { lat: parseFloat(lat), lng: parseFloat(lng) };
-
-            geocoder.geocode({ location: latlng }, (results, status) => {
-                btn.innerHTML = originalText;
-
-                if (status === "OK" && results[0]) {
-                    // ডেটা ফিল করার আগে ফিল্ড খালি করে দেওয়া
-                    document.getElementById('reg-village').value = '';
-                    document.getElementById('reg-road').value = '';
-                    document.getElementById('reg-pin').value = '';
-
-                    // Google-এর রেজাল্ট থেকে গ্রাম, রাস্তা ও পিনকোড আলাদা করা
-                    for (const component of results[0].address_components) {
-                        const componentType = component.types[0];
-
-                        switch (componentType) {
-                            case "route": 
-                                document.getElementById('reg-road').value = component.long_name; 
-                                break;
-                            case "sublocality_level_1":
-                            case "locality": 
-                                document.getElementById('reg-village').value = component.long_name; 
-                                break;
-                            case "postal_code": 
-                                document.getElementById('reg-pin').value = component.long_name; 
-                                break;
-                        }
-                    }
-                    showToast("ঠিকানা পাওয়া গেছে! দয়া করে যাচাই করে নিন।");
-                } else {
-                    showToast("সঠিক ঠিকানা খুঁজে পাওয়া যায়নি। ম্যানুয়ালি লিখুন।", true);
-                }
-            });
-        },
-        // Error Callback
-        (error) => {
-            btn.innerHTML = originalText;
-            if (error.code === error.PERMISSION_DENIED) {
-                showToast("আপনি লোকেশন পারমিশন দেননি!", true);
-            } else {
-                showToast("লোকেশন পেতে সমস্যা হচ্ছে।", true);
-            }
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        
+        if (!navigator.geolocation) {
+            showToast("আপনার ব্রাউজার লোকেশন সাপোর্ট করে না।", true);
+            return;
         }
-    );
-};
-    
-</script>
+
+        btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Locating...';
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                const geocoder = new google.maps.Geocoder();
+                const latlng = { lat: parseFloat(lat), lng: parseFloat(lng) };
+
+                geocoder.geocode({ location: latlng }, (results, status) => {
+                    btn.innerHTML = originalText;
+
+                    if (status === "OK" && results[0]) {
+                        document.getElementById('reg-village').value = '';
+                        document.getElementById('reg-road').value = '';
+                        document.getElementById('reg-pin').value = '';
+
+                        for (const component of results[0].address_components) {
+                            const componentType = component.types[0];
+
+                            switch (componentType) {
+                                case "route": 
+                                    document.getElementById('reg-road').value = component.long_name; 
+                                    break;
+                                case "sublocality_level_1":
+                                case "locality": 
+                                    document.getElementById('reg-village').value = component.long_name; 
+                                    break;
+                                case "postal_code": 
+                                    document.getElementById('reg-pin').value = component.long_name; 
+                                    break;
+                            }
+                        }
+                        showToast("ঠিকানা পাওয়া গেছে! দয়া করে যাচাই করে নিন।");
+                    } else {
+                        showToast("সঠিক ঠিকানা খুঁজে পাওয়া যায়নি। ম্যানুয়ালি লিখুন।", true);
+                    }
+                });
+            },
+            (error) => {
+                btn.innerHTML = originalText;
+                if (error.code === error.PERMISSION_DENIED) {
+                    showToast("আপনি লোকেশন পারমিশন দেননি!", true);
+                } else {
+                    showToast("লোকেশন পেতে সমস্যা হচ্ছে।", true);
+                }
+            }
+        );
+    };
+    </script>
     
     <!-- FIREBASE RTDB CLOUD SYNC & APP LOGIC -->
     <script type="module">
@@ -768,7 +982,12 @@
 
         const State = {
             viewMode: 'public', isLoggedIn: false,
-            settings: { entryFee: 1000, upiId: 'modernsportingclub@idbi', playersLimit: 9, maxOversPerBowler: 2, totalOvers: 10, teamLimit: 16, date: '2026-12-25T09:00', ageLimit: 'Open for all' },
+            settings: { 
+                entryFee: 1000, upiId: 'modernsportingclub@idbi', playersLimit: 9, 
+                maxOversPerBowler: 2, totalOvers: 10, teamLimit: 16, date: '2026-12-25T09:00', 
+                ageLimit: 'Open for all',
+                rules: ["প্লেড প্লেয়ার খেলা নেই।"] // Default custom rule
+            },
             teams: [], matches: [], liveMatch: null, formPlayers: Array(7).fill(''),
             pendingRegistration: null, editTeamId: null, currentViewingTeam: null, editMatchId: null
         };
@@ -837,7 +1056,12 @@
 
         function setupCloudListeners() {
             onValue(ref(db, 'system/settings'), (snapshot) => {
-                if(snapshot.exists()) { State.settings = { ...State.settings, ...snapshot.val() }; updateSettingsUI(); }
+                if(snapshot.exists()) { 
+                    const val = snapshot.val();
+                    State.settings = { ...State.settings, ...val }; 
+                    State.settings.rules = val.rules || ["প্লেড প্লেয়ার খেলা নেই।"];
+                    updateSettingsUI(); 
+                }
             });
             
             onValue(ref(db, 'system/live_match'), (snapshot) => {
@@ -853,7 +1077,6 @@
                     State.liveMatch = mData; 
                     updateScoreUI(); 
                     
-                    // AUTO-SHOW SCORE PANEL IF ADMIN RETURNS TO MATCH TAB
                     if (document.getElementById('adm-tab-score').classList.contains('block')) {
                         document.getElementById('score-setup-panel').classList.add('hidden');
                         document.getElementById('active-scoring-panel').classList.remove('hidden');
@@ -870,6 +1093,7 @@
                 if(snapshot.exists()) { snapshot.forEach(c => { State.teams.push({ id: c.key, ...c.val() }); }); }
                 renderTeamsTable();
                 populateManualMatchSelects();
+                renderPublicParticipants();
             });
             
             onValue(ref(db, 'matches'), (snapshot) => {
@@ -880,41 +1104,172 @@
             renderPlayersForm('reg');
         }
 
-     function updateSettingsUI() {
+        // --- NEW: RULES MANAGEMENT FOR ADMIN ---
+        window.renderAdminRules = function() {
+            const list = document.getElementById('admin-rules-list');
+            if(!list) return;
+            list.innerHTML = '';
+            (State.settings.rules || []).forEach((r, i) => {
+                list.innerHTML += `
+                <div class="flex items-center gap-2 bg-gray-50 p-3 rounded-lg border border-gray-200 shadow-sm">
+                    <span class="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-xs font-bold text-gray-500">${i+1}</span>
+                    <span class="flex-1 text-sm font-semibold text-gray-800">${r}</span>
+                    <button type="button" onclick="removeAdminRule(${i})" class="text-red-500 bg-red-50 p-2 rounded-lg hover:bg-red-100 hover:text-red-700 transition" title="Delete Rule"><i class="ph ph-trash text-lg"></i></button>
+                </div>`;
+            });
+        };
+
+        window.addAdminRule = function() {
+            const inp = document.getElementById('new-rule-input');
+            const val = inp.value.trim();
+            if(val) {
+                State.settings.rules = State.settings.rules || [];
+                State.settings.rules.push(val);
+                inp.value = '';
+                renderAdminRules();
+            }
+        };
+
+        window.removeAdminRule = function(index) {
+            if(State.settings.rules) {
+                State.settings.rules.splice(index, 1);
+                renderAdminRules();
+            }
+        };
+
+ 
+ function updateSettingsUI() {
             const fee = parseInt(State.settings.entryFee) || 0;
             const submitBtn = document.getElementById('submitRegBtn');
             
-            if (fee === 0) {
-                submitBtn.innerHTML = `<span>Submit Registration (Free)</span><i class="ph ph-check-circle"></i>`;
-            } else {
-                submitBtn.innerHTML = `<span>Save & Proceed to Pay ₹<span id="ui-entryFeeBtn">${fee}</span></span><i class="ph ph-arrow-right"></i>`;
+            if(submitBtn) {
+                if (fee === 0) {
+                    submitBtn.innerHTML = `<span>Submit Registration (Free)</span><i class="ph ph-check-circle"></i>`;
+                } else {
+                    submitBtn.innerHTML = `<span>Save & Proceed to Pay ₹<span id="ui-entryFeeBtn">${fee}</span></span><i class="ph ph-arrow-right"></i>`;
+                }
             }
 
-            document.getElementById('set-fee').value = State.settings.entryFee;
-            document.getElementById('set-upi').value = State.settings.upiId;
-            document.getElementById('set-playersLimit').value = State.settings.playersLimit;
-            document.getElementById('set-maxOvers').value = State.settings.maxOversPerBowler || 2;
-            document.getElementById('set-totalOvers').value = State.settings.totalOvers || 10;
-            document.getElementById('set-teamLimit').value = State.settings.teamLimit;
-            document.getElementById('set-datetime').value = State.settings.date;
-            document.getElementById('set-age').value = State.settings.ageLimit || 'Open for all';
+            if(document.getElementById('set-fee')) document.getElementById('set-fee').value = State.settings.entryFee;
+            if(document.getElementById('set-upi')) document.getElementById('set-upi').value = State.settings.upiId;
+            if(document.getElementById('set-playersLimit')) document.getElementById('set-playersLimit').value = State.settings.playersLimit;
+            
+            // পুরনো set-maxOvers-এর লাইনটি এখান থেকে সম্পূর্ণ মুছে ফেলা হয়েছে
+            
+            if(document.getElementById('set-totalOvers')) document.getElementById('set-totalOvers').value = State.settings.totalOvers || 10;
+            if(document.getElementById('set-teamLimit')) document.getElementById('set-teamLimit').value = State.settings.teamLimit;
+            if(document.getElementById('set-datetime')) document.getElementById('set-datetime').value = State.settings.date;
+            if(document.getElementById('set-age')) document.getElementById('set-age').value = State.settings.ageLimit || 'Open for all';
+            
+            if(document.getElementById('set-rules')) {
+                let rText = State.settings.rules || "১. ম্যাচ শুরু হওয়ার অন্তত ৩০ মিনিট আগে মাঠে রিপোর্ট করতে হবে।\n২. আম্পায়ারের সিদ্ধান্তই চূড়ান্ত বলে গণ্য হবে।";
+                document.getElementById('set-rules').value = Array.isArray(rText) ? rText.join('\n') : rText;
+            }
+
+            renderAdminRules();
+            renderBowlerRules();
         }
+ 
      
-        window.saveSettings = async function(e) {
+   window.saveSettings = async function(e) {
             State.settings.entryFee = document.getElementById('set-fee').value;
             State.settings.upiId = document.getElementById('set-upi').value;
             State.settings.playersLimit = parseInt(document.getElementById('set-playersLimit').value);
-            State.settings.maxOversPerBowler = parseInt(document.getElementById('set-maxOvers').value);
+            
+            // পুরনো maxOvers এর লাইনটি মুছে ফেলা হয়েছে, কারণ এখন ডায়নামিক রুলস কাজ করবে
+            
             State.settings.totalOvers = parseInt(document.getElementById('set-totalOvers').value);
             State.settings.teamLimit = parseInt(document.getElementById('set-teamLimit').value);
             State.settings.date = document.getElementById('set-datetime').value;
             State.settings.ageLimit = document.getElementById('set-age').value;
+            State.settings.matchRules = document.getElementById('set-rules').value;
             
-            let btn = e ? e.target : null; if(btn) btn.innerHTML = "Saving...";
+            let btn = e ? e.target : null; 
+            if(btn) btn.innerHTML = '<i class="ph ph-spinner animate-spin text-xl"></i> Saving...';
+            
             await safeFirebaseCall(set(ref(db, 'system/settings'), State.settings));
-            if(btn) btn.innerHTML = 'Save to Cloud <i class="ph ph-cloud-arrow-up"></i>';
-            showToast("Settings Saved successfully");
+            
+            if(btn) btn.innerHTML = 'Save All Settings to Cloud <i class="ph ph-cloud-arrow-up text-xl"></i>';
+            showToast("Settings and Rules Saved successfully");
         };
+
+        // --- NEW: RULES MODAL PUBLIC LOGIC ---
+        window.openRulesModal = function() {
+            const cb = document.getElementById('reg-agree-checkbox');
+            if (cb.checked) {
+                // If it's already checked, uncheck it on click
+                cb.checked = false;
+                document.getElementById('custom-checkbox-ui').innerHTML = '';
+                document.getElementById('custom-checkbox-ui').classList.remove('bg-emerald-600', 'border-emerald-600');
+                document.getElementById('custom-checkbox-ui').classList.add('bg-white', 'border-gray-400');
+                return;
+            }
+
+            const container = document.getElementById('modal-rules-container');
+            container.innerHTML = '';
+
+            // Generate First Dynamic Rule dynamically based on Admin Inputs
+            const overs = State.settings.totalOvers || 10;
+            const maxOvers = State.settings.maxOversPerBowler || 2;
+            const dynamicRule = `টুর্ণামেন্ট মোট ${overs} ওভারের হবে, এবং প্রতি বোলার সর্বোচ্চ ${maxOvers} ওভার বল করতে পারবেন।`;
+
+            // Combine Dynamic Rule with Admin's custom Rules
+            let combinedRules = [dynamicRule, ...(State.settings.rules || ["প্লেড প্লেয়ার খেলা নেই।"])];
+
+            combinedRules.forEach((rule, index) => {
+                container.innerHTML += `
+                <label class="flex items-start gap-4 p-4 bg-white hover:bg-gray-50 border border-gray-200 rounded-xl cursor-pointer transition shadow-sm">
+                    <input type="checkbox" class="rule-cb mt-1 w-5 h-5 text-amber-600 rounded focus:ring-amber-500 border-gray-300" onchange="checkAllRulesAccepted()">
+                    <span class="text-sm font-semibold text-gray-800 leading-snug">${rule}</span>
+                </label>`;
+            });
+
+            // Reset Button State
+            const btn = document.getElementById('accept-rules-btn');
+            btn.disabled = true;
+            btn.className = "flex-1 bg-gray-300 text-gray-500 py-3 rounded-xl font-bold transition cursor-not-allowed";
+
+            document.getElementById('rulesModal').classList.remove('hidden');
+        };
+
+        window.checkAllRulesAccepted = function() {
+            const checkboxes = document.querySelectorAll('.rule-cb');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            const btn = document.getElementById('accept-rules-btn');
+            
+            if (allChecked) {
+                btn.disabled = false;
+                btn.className = "flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-xl font-bold shadow-lg transition";
+            } else {
+                btn.disabled = true;
+                btn.className = "flex-1 bg-gray-300 text-gray-500 py-3 rounded-xl font-bold transition cursor-not-allowed";
+            }
+        };
+
+        window.acceptRegistrationRules = function() {
+            document.getElementById('rulesModal').classList.add('hidden');
+            document.getElementById('reg-agree-checkbox').checked = true;
+            document.getElementById('custom-checkbox-ui').innerHTML = '<i class="ph-bold ph-check text-white text-sm"></i>';
+            document.getElementById('custom-checkbox-ui').classList.remove('bg-white', 'border-gray-400');
+            document.getElementById('custom-checkbox-ui').classList.add('bg-emerald-600', 'border-emerald-600');
+        };
+
+        window.cancelRegistrationRules = function() {
+            document.getElementById('rulesModal').classList.add('hidden');
+            
+            document.getElementById('reg-agree-checkbox').checked = false;
+            document.getElementById('custom-checkbox-ui').innerHTML = '';
+            document.getElementById('custom-checkbox-ui').classList.remove('bg-emerald-600', 'border-emerald-600');
+            document.getElementById('custom-checkbox-ui').classList.add('bg-white', 'border-gray-400');
+
+            // Reset entire Form and clear memory as requested
+            document.getElementById('registrationForm').reset();
+            State.formPlayers = Array(7).fill('');
+            renderPlayersForm('reg');
+            
+            showToast("রেজিস্ট্রেশন বাতিল ও ফর্ম মুছে ফেলা হয়েছে!", true);
+        };
+
 
         window.renderPlayersForm = function(mode = 'reg') {
             const list = document.getElementById(mode === 'reg' ? 'playersList' : 'editPlayersList'); list.innerHTML = '';
@@ -926,10 +1281,8 @@
         window.removeFormPlayer = (i, mode) => { State.formPlayers.splice(i, 1); renderPlayersForm(mode); };
         window.addPlayer = (mode) => { if (State.formPlayers.length < State.settings.playersLimit) { State.formPlayers.push(''); renderPlayersForm(mode); } else showToast(`Admin Limit: Max ${State.settings.playersLimit} players.`, true); };
 
-    // Global variable for timer
         let qrTimerInterval;
 
-        // Helper function to handle QR Generation and Timer
         window.generateUPIPaymentUI = function(regNumber, amount) {
             const upiLink = `upi://pay?pa=${State.settings.upiId}&pn=Modern%20Sporting%20Club&am=${amount}&cu=INR&tn=Reg_${regNumber}`;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiLink)}`;
@@ -953,12 +1306,11 @@
                 </div>
             `;
 
-            // Start 60 seconds timer
             startQRTimer(60);
         };
 
         window.startQRTimer = function(seconds) {
-            clearInterval(qrTimerInterval); // Clear any existing timer
+            clearInterval(qrTimerInterval);
             let timeLeft = seconds;
             
             qrTimerInterval = setInterval(() => {
@@ -983,7 +1335,40 @@
             }, 1000);
         };
 
-        // TEAM REGISTRATION (Updated)
+        // SHARED FUNCTION FOR PDF / RECEIPT GENERATION
+        window.populateReceiptData = function(team) {
+            document.getElementById('r-regNo').innerText = team.regNo || team.id;
+            document.getElementById('r-date').innerText = new Date(team.timestamp || Date.now()).toLocaleDateString();
+            document.getElementById('r-teamName').innerText = team.name;
+            document.getElementById('r-teamHead').innerText = team.head;
+            document.getElementById('r-phone').innerText = team.phone;
+            document.getElementById('r-address').innerText = team.address;
+            
+            document.getElementById('r-fee-container').style.display = team.status.includes('Paid') || State.settings.entryFee == 0 ? 'flex' : 'none';
+            document.getElementById('r-qr-container').style.display = 'none';
+            
+            const rp = document.getElementById('r-playersList'); rp.innerHTML = '';
+            team.players.forEach((p, i) => rp.innerHTML += `<div><span class="text-gray-500 text-xs">${i+1}.</span> ${p}</div>`);
+            document.getElementById('r-tdate').innerText = new Date(State.settings.date).toLocaleString();
+
+            const rulesList = document.getElementById('r-rules-list'); rulesList.innerHTML = '';
+            const overs = State.settings.totalOvers || 10; const maxOvers = State.settings.maxOversPerBowler || 2;
+            const dynamicRule = `টুর্ণামেন্ট মোট ${overs} ওভারের হবে, এবং প্রতি বোলার সর্বোচ্চ ${maxOvers} ওভার বল করতে পারবেন।`;
+            
+            let combinedRules = [dynamicRule, ...(State.settings.rules || ["প্লেড প্লেয়ার খেলা নেই।"])];
+            combinedRules.forEach((r, i) => {
+                rulesList.innerHTML += `<li class="mb-2 text-sm font-semibold text-gray-800 leading-snug"><span class="mr-2">${i+1}.</span>${r}</li>`;
+            });
+
+            // FIXED DIGITAL SIGNATURE DATA INJECTION
+            document.getElementById('ds-head').innerText = team.head;
+            const d = new Date(team.timestamp || Date.now());
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const formattedDate = `${d.getDate().toString().padStart(2, '0')}-${months[d.getMonth()]}-${d.getFullYear()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}:${d.getSeconds().toString().padStart(2, '0')} IST`;
+            document.getElementById('ds-datetime').innerText = formattedDate;
+        };
+
+   // TEAM REGISTRATION (Updated for 2-Page PDF & Number-to-Words)
         window.handleFormSubmit = async function(e) {
             e.preventDefault();
             if(State.teams.length >= State.settings.teamLimit) return showToast("Registration Closed. Total Teams Limit reached.", true);
@@ -1009,21 +1394,32 @@
             // Bypass Payment View and go straight to PDF if Entry Fee is 0
             if (entryFee === 0) {
                 const team = State.pendingRegistration;
+                const formattedDate = formatToDDMMYYYY(team.timestamp);
                 
+                // PAGE 1 POPULATION: Receipt
                 document.getElementById('r-regNo').innerText = team.regNo;
-                document.getElementById('r-date').innerText = new Date(team.timestamp).toLocaleDateString();
+                document.getElementById('r-date').innerText = formattedDate;
                 document.getElementById('r-teamName').innerText = team.name;
                 document.getElementById('r-teamHead').innerText = team.head;
                 document.getElementById('r-phone').innerText = team.phone;
                 document.getElementById('r-address').innerText = team.address;
+                document.getElementById('r-fee').innerText = '0';
+                document.getElementById('r-fee-words').innerText = numberToWords(0);
                 
-                document.getElementById('r-fee-container').style.display = 'none'; 
-                document.getElementById('r-qr-container').style.display = 'none';
+                const feeContainer = document.getElementById('r-fee-container');
+                if(feeContainer) feeContainer.style.display = 'flex';
+                
+                // PAGE 2 POPULATION: Rules & Declaration
+                document.getElementById('r2-regNo').innerText = team.regNo;
+                document.getElementById('r2-date').innerText = formattedDate;
+                document.getElementById('r2-teamName').innerText = team.name;
+                document.getElementById('r2-address').innerText = team.address;
+                document.getElementById('r2-teamHead-sign').innerText = team.head;
                 
                 const rp = document.getElementById('r-playersList'); rp.innerHTML = '';
                 team.players.forEach((p, i) => rp.innerHTML += `<div><span class="text-gray-500 text-xs">${i+1}.</span> ${p}</div>`);
-                document.getElementById('r-tdate').innerText = new Date(State.settings.date).toLocaleString();
                 
+                // Switch Views
                 document.getElementById('main-header').classList.add('hidden');
                 document.getElementById('public-view').classList.add('hidden');
                 document.getElementById('receipt-view').style.display = 'block';
@@ -1044,10 +1440,31 @@
             document.getElementById('pay-reg-no').innerText = regNumber; document.getElementById('pay-amount').innerText = State.settings.entryFee;
             document.getElementById('pub-tab-entry').classList.add('hidden'); document.getElementById('payment-redirect-view').classList.remove('hidden');
 
-            // Call the new helper function to handle UI and Timer
+            // Call the helper function to handle UI and Timer
             generateUPIPaymentUI(regNumber, State.settings.entryFee);
 
             btn.innerHTML = `<span>Save & Proceed to Pay ₹${State.settings.entryFee}</span><i class="ph ph-arrow-right"></i>`; btn.disabled = false;
+        };
+
+        window.verifyPayment = async function() {
+            if(!State.pendingRegistration) return;
+            const btn = document.getElementById('verify-btn');
+            btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Verifying...';
+            
+            State.pendingRegistration.status = 'Paid / Approved';
+            await safeFirebaseCall(update(ref(db, `teams/${State.pendingRegistration.regNo}`), { status: 'Paid / Approved' }));
+            
+            populateReceiptData(State.pendingRegistration);
+            document.getElementById('r-fee-container').style.display = 'flex';
+            document.getElementById('r-fee').innerText = State.settings.entryFee;
+            
+            document.getElementById('payment-redirect-view').classList.add('hidden');
+            document.getElementById('main-header').classList.add('hidden');
+            document.getElementById('receipt-view').style.display = 'block';
+            window.scrollTo(0,0);
+            showToast("Payment Verified & Registration Complete!");
+            
+            State.pendingRegistration = null;
         };
         
         window.goBackToApp = function() { 
@@ -1094,7 +1511,7 @@
         
         window.changeTeamStatus = async (id, st) => { await safeFirebaseCall(update(ref(db, `teams/${id}`), { status: st })); showToast(`Status updated to ${st}`); };
         window.disqualifyTeam = (id) => showConfirm("আপনি কি নিশ্চিত যে এই দলকে টুর্নামেন্ট থেকে বাতিল (Disqualify) করতে চান?", () => changeTeamStatus(id, 'Disqualified'));
-        window.deleteTeam = (id) => showConfirm("সতর্কতা: আপনি কি নিশ্চিত যে এই দলের সমস্ত ডাটা মুছে ফেলতে চান? এটি আনডু করা যাবে না।", async () => { await safeFirebaseCall(remove(ref(db, `teams/${id}`))); showToast("Team deleted successfully."); });
+        window.deleteTeam = (id) => showConfirm("সতর্কতা: আপনি কি নিশ্চিত যে এই দলের সমস্ত ডাটা মুছে ফেলতে চান? এটি আনডু করা যাবেবিধা।", async () => { await safeFirebaseCall(remove(ref(db, `teams/${id}`))); showToast("Team deleted successfully."); });
         
         // ADMIN TEAM DETAILS POP-UP & PDF
         window.showAdminTeamDetails = function(teamId) {
@@ -1113,24 +1530,43 @@
         };
         window.closeAdminTeamDetailsModal = () => document.getElementById('adminTeamDetailsModal').classList.add('hidden');
         
+      // ADMIN: PRINT CURRENT TEAM DETAILS (Updated for 2-Page PDF)
         window.printCurrentTeamDetails = function() {
             const team = State.currentViewingTeam; if(!team) return;
             closeAdminTeamDetailsModal();
             
+            const formattedDate = formatToDDMMYYYY(team.timestamp || Date.now());
+            const feePaid = parseInt(State.settings.entryFee) || 0;
+
+            // PAGE 1 POPULATION: Receipt
             document.getElementById('r-regNo').innerText = team.regNo || team.id;
-            document.getElementById('r-date').innerText = new Date(team.timestamp || Date.now()).toLocaleDateString();
+            document.getElementById('r-date').innerText = formattedDate;
             document.getElementById('r-teamName').innerText = team.name;
             document.getElementById('r-teamHead').innerText = team.head;
             document.getElementById('r-phone').innerText = team.phone;
             document.getElementById('r-address').innerText = team.address;
             
-            document.getElementById('r-fee-container').style.display = 'none'; 
-            document.getElementById('r-qr-container').style.display = 'none';
+            const feeEl = document.getElementById('r-fee');
+            if(feeEl) feeEl.innerText = feePaid;
             
+            const feeWordsEl = document.getElementById('r-fee-words');
+            if(feeWordsEl) feeWordsEl.innerText = numberToWords(feePaid);
+            
+            const feeContainer = document.getElementById('r-fee-container');
+            if(feeContainer) feeContainer.style.display = 'flex';
+            
+            // PAGE 2 POPULATION: Rules & Declaration
+            document.getElementById('r2-regNo').innerText = team.regNo || team.id;
+            document.getElementById('r2-date').innerText = formattedDate;
+            document.getElementById('r2-teamName').innerText = team.name;
+            document.getElementById('r2-address').innerText = team.address;
+            document.getElementById('r2-teamHead-sign').innerText = team.head;
+            
+            // PLAYERS LIST
             const rp = document.getElementById('r-playersList'); rp.innerHTML = '';
             team.players.forEach((p, i) => rp.innerHTML += `<div><span class="text-gray-500 text-xs">${i+1}.</span> ${p}</div>`);
-            document.getElementById('r-tdate').innerText = new Date(State.settings.date).toLocaleString();
             
+            // SWITCH VIEWS
             document.getElementById('admin-view').classList.add('hidden');
             document.getElementById('main-header').classList.add('hidden');
             document.getElementById('receipt-view').style.display = 'block';
@@ -1160,7 +1596,6 @@
         // SCHEDULING (Admin & Public)
         window.autoGenerateMatches = async function() {
             const stage = document.getElementById('schedule-stage').value;
-            // Only pickup Approved teams. Eliminated / Disqualified are omitted natively!
             const approvedTeams = State.teams.filter(t => t.status === 'Approved');
             if(approvedTeams.length < 2) return showToast("Not enough approved teams for pairing.", true);
             const half = Math.floor(approvedTeams.length / 2);
@@ -1364,7 +1799,6 @@
         window.autoEndInnings = async function() {
             if (!State.liveMatch) return;
             
-            // Save Innings 1 data permanently for Match Summary PDF later
             State.liveMatch.innings1Data = {
                 batTeamId: State.liveMatch.batTeam.id,
                 bowlTeamId: State.liveMatch.bowlTeam.id,
@@ -1390,8 +1824,6 @@
             State.liveMatch.currentOver = [];
             State.liveMatch.history = []; 
             
-            // NOTE: Do not clear batterStats and bowlerStats so that Innings 1 data is preserved for PDF!
-            
             const sSel = document.getElementById('sc-striker-select');
             const rSel = document.getElementById('sc-runner-select');
             const bSel = document.getElementById('sc-bowler-select');
@@ -1414,7 +1846,6 @@
             const match = State.matches.find(m => m.id === State.liveMatch.matchId);
             if(!match) return;
 
-            // Flush current active players to stats before saving
             if(State.liveMatch.striker.name) State.liveMatch.batterStats[State.liveMatch.striker.name] = {...State.liveMatch.striker};
             if(State.liveMatch.runner.name) State.liveMatch.batterStats[State.liveMatch.runner.name] = {...State.liveMatch.runner};
             if(State.liveMatch.bowler.name) State.liveMatch.bowlerStats[State.liveMatch.bowler.name] = {...State.liveMatch.bowler};
@@ -1428,31 +1859,25 @@
                 winnerTeam = winnerId === match.team1.id ? match.team1 : match.team2;
                 loserTeam = loserId === match.team1.id ? match.team1 : match.team2;
                 
-                // Calculate Exact Win Margin
                 if (State.liveMatch.innings1Data && winnerTeam.id === State.liveMatch.innings1Data.batTeamId) {
-                    // Defending team won (Batted first)
                     let runsMargin = (State.liveMatch.target - 1) - State.liveMatch.score;
                     marginStr = `${winnerTeam.name} WON BY ${runsMargin} RUNS`;
                 } else {
-                    // Chasing team won (Batted second)
                     let wktsMargin = (Math.min(winnerTeam.players.length, State.settings.playersLimit) - 1) - State.liveMatch.wickets;
                     marginStr = `${winnerTeam.name} WON BY ${wktsMargin} WICKETS`;
                 }
 
-                // Eliminate loser
                 await safeFirebaseCall(update(ref(db, `teams/${loserTeam.id}`), { status: 'Eliminated' }));
 
-                // Man of the Match Calculation Logic: Highest Run/Wicket from Winning Team
                 let maxPoints = -1;
                 winnerTeam.players.forEach(p => {
                     let runs = State.liveMatch.batterStats[p] ? State.liveMatch.batterStats[p].runs : 0;
                     let wkts = State.liveMatch.bowlerStats[p] ? State.liveMatch.bowlerStats[p].wickets : 0;
-                    let pts = runs + (wkts * 20); // 1 Run = 1pt, 1 Wicket = 20pts
+                    let pts = runs + (wkts * 20); 
                     if (pts > maxPoints) { maxPoints = pts; mom = p; }
                 });
             }
 
-            // Save permanent match details
             await safeFirebaseCall(update(ref(db, `matches/${match.id}`), {
                 status: 'Completed',
                 winner: winnerTeam,
@@ -1467,14 +1892,12 @@
                 finalScore: { score: State.liveMatch.score, wickets: State.liveMatch.wickets, overs: Math.floor(State.liveMatch.balls / 6) + '.' + (State.liveMatch.balls % 6) }
             }));
 
-            // Championship Check
             if (match.stage === 'Final' && winnerId !== 'TIE') {
                 showConfirm(`🏆 TOURNAMENT ENDED! 🏆\n\nWINNER / জয়ী: ${winnerTeam.name}\nRUNNER-UP: ${loserTeam.name}\nMoM: ${mom}`, () => { closeConfirm(); }, true);
             } else {
                 showToast(`Match Completed! ${marginStr}`);
             }
 
-            // Cleanup Live DB
             await safeFirebaseCall(remove(ref(db, 'system/live_match')));
             State.liveMatch = null;
             document.getElementById('active-scoring-panel').classList.add('hidden');
@@ -1482,7 +1905,6 @@
             switchTab('admin', 'schedule');
         };
 
-        // Open Match Summary PDF
         window.openMatchSummary = function(matchId) {
             const match = State.matches.find(m => m.id === matchId);
             if (!match || !match.stats) return showToast("Summary data not available for this match.", true);
@@ -1500,14 +1922,12 @@
             const t2Body = document.getElementById('s-t2-players');
             t1Body.innerHTML = ''; t2Body.innerHTML = '';
 
-            // Render Team 1
             match.team1.players.forEach(p => {
                 let r = match.stats.batterStats[p] ? match.stats.batterStats[p].runs : 0;
                 let w = match.stats.bowlerStats[p] ? match.stats.bowlerStats[p].wickets : 0;
                 t1Body.innerHTML += `<tr class="border-b border-gray-100 last:border-0"><td class="py-2 font-bold">${p}</td><td class="py-2 text-center text-gray-700">${r}</td><td class="py-2 text-center text-gray-700">${w}</td></tr>`;
             });
 
-            // Render Team 2
             match.team2.players.forEach(p => {
                 let r = match.stats.batterStats[p] ? match.stats.batterStats[p].runs : 0;
                 let w = match.stats.bowlerStats[p] ? match.stats.bowlerStats[p].wickets : 0;
@@ -1586,7 +2006,6 @@
                 try {
                     const poppedStateStr = State.liveMatch.history.pop();
                     const poppedState = JSON.parse(poppedStateStr);
-                    // Retain the remaining history array to prevent losing past undo states
                     poppedState.history = State.liveMatch.history; 
                     State.liveMatch = poppedState; 
                     await safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch));
@@ -1674,7 +2093,6 @@
                 await safeFirebaseCall(set(ref(db, 'system/live_match'), State.liveMatch)); 
                 updateScoreUI();
                 
-                // Auto checks for match / innings progression
                 setTimeout(() => {
                     if (!State.liveMatch) {
                         _isProcessingBall = false;
@@ -1720,7 +2138,6 @@
             }
         };
 
-        // UI SYNC ENGINE
         function updateScoreUI() {
             const lm = State.liveMatch; if(!lm) return;
             const oversStr = `${Math.floor(lm.balls / 6)}.${lm.balls % 6}`;
@@ -1768,21 +2185,64 @@
                 sSel.value = lm.striker.name || ''; 
                 rSel.value = lm.runner.name || '';
 
-                bSel.innerHTML = '<option value="">Select Bowler...</option>';
-                const maxBalls = (parseInt(State.settings.maxOversPerBowler) || 2) * 6;
+bSel.innerHTML = '<option value="">Select Bowler...</option>';
+                
+                // ১. ডাইনামিক রুলস থেকে বোলার লিমিটের একটি লিস্ট তৈরি করা 
+                let bowlerRulesList = State.settings.bowlerRules || [{bowlers: 11, overs: 2}];
+                let allowedLimits = [];
+                bowlerRulesList.forEach(r => {
+                    let maxBalls = r.overs === 'unlimited' ? Infinity : parseInt(r.overs) * 6;
+                    for(let i=0; i < parseInt(r.bowlers); i++) allowedLimits.push(maxBalls);
+                });
+                allowedLimits.sort((a, b) => b - a); // বড় থেকে ছোট সাজানো
+
+                // ২. বর্তমানে কোন বোলার কত বল করেছে তার হিসাব
+                let currentStats = [];
                 lm.bowlTeam.players.forEach(p => {
-                    const stats = lm.bowlerStats[p]; 
-                    const bBalls = (lm.bowler.name === p) ? lm.bowler.balls : (stats ? stats.balls : 0); 
-                    const isMaxed = bBalls >= maxBalls;
+                    let bBalls = lm.bowlerStats[p] ? lm.bowlerStats[p].balls : 0;
+                    if (lm.bowler.name === p) bBalls = lm.bowler.balls; 
+                    if (bBalls > 0) currentStats.push({ name: p, balls: bBalls });
+                });
+
+                // ৩. ড্রপডাউনে প্রতিটি বোলারের জন্য ম্যাথমেটিকাল চেক
+                lm.bowlTeam.players.forEach(p => {
+                    let bBalls = lm.bowlerStats[p] ? lm.bowlerStats[p].balls : 0;
+                    if (lm.bowler.name === p) bBalls = lm.bowler.balls;
+
+                    let canBowl = true;
+                    
+                    if (bBalls > 0 && (bBalls % 6 !== 0)) {
+                        // বোলার যদি ওভারের মাঝে থাকে, তবে সে বল চালিয়ে যেতে পারবে
+                        canBowl = true;
+                    } else {
+                        // বোলার যদি নতুন ওভার শুরু করতে চায়, তবে ভবিষ্যৎ হিসাব চেক করা
+                        let projectedStats = currentStats.map(s => ({...s}));
+                        let existing = projectedStats.find(s => s.name === p);
+                        if (existing) existing.balls += 1; 
+                        else projectedStats.push({ name: p, balls: 1 });
+                        
+                        projectedStats.sort((a, b) => b.balls - a.balls); 
+                        
+                        for(let i = 0; i < projectedStats.length; i++) {
+                            let allowed = allowedLimits[i] !== undefined ? allowedLimits[i] : 0;
+                            if (projectedStats[i].balls > allowed) {
+                                canBowl = false;
+                                break;
+                            }
+                        }
+                    }
+
                     const isCurrentBowler = lm.bowler.name === p;
 
-                    if (isMaxed && !isCurrentBowler) {
-                        bSel.innerHTML += `<option value="${p}" disabled class="text-gray-400 bg-gray-100 italic">${p} (Max Limit Reached: ${Math.floor(bBalls/6)}.${bBalls%6} Ov)</option>`;
+                    if (!canBowl && !isCurrentBowler) {
+                        bSel.innerHTML += `<option value="${p}" disabled class="text-gray-400 bg-gray-100 italic">${p} (Limit Reached: ${Math.floor(bBalls/6)}.${bBalls%6} Ov)</option>`;
                     } else {
                         bSel.innerHTML += `<option value="${p}">${p} (${Math.floor(bBalls/6)}.${bBalls%6} Ov)</option>`;
                     }
                 });
-                bSel.value = lm.bowler.name || '';
+
+
+                 bSel.value = lm.bowler.name || '';
 
                 document.getElementById('sc-total-score').innerText = `${lm.score} - ${lm.wickets}`; document.getElementById('sc-overs').innerText = oversStr;
                 document.getElementById('sc-total-overs-disp').innerText = lm.totalOvers;
@@ -1812,46 +2272,45 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-700 pt-4 mt-4"><div class="bg-white/5 p-3 rounded"><div class="text-xs text-gray-400 mb-2 uppercase font-bold tracking-widest">Batting</div><div class="font-bold flex justify-between text-sm mb-1 ${lm.striker.name ? 'text-white' : 'text-gray-600'}"><span>${lm.striker.name || 'Striker'} *</span> <span>${lm.striker.runs}(${lm.striker.balls})</span></div><div class="font-bold flex justify-between text-sm ${lm.runner.name ? 'text-gray-300' : 'text-gray-600'}"><span>${lm.runner.name || 'Runner'}</span> <span>${lm.runner.runs}(${lm.runner.balls})</span></div></div><div class="bg-white/5 p-3 rounded flex flex-col justify-center"><div class="text-xs text-gray-400 mb-2 uppercase font-bold tracking-widest">This Over</div><div class="flex gap-1 flex-wrap text-sm">${lm.currentOver.length > 0 ? lm.currentOver.join('') : '<span class="text-gray-600">.</span>'}</div></div></div>
                 </div>`;
         }
-// ড্রপডাউনে শুধু Approved টিমগুলো লোড করার ফাংশন
-function populateManualMatchSelects() {
-    const t1 = document.getElementById('manual-match-t1');
-    const t2 = document.getElementById('manual-match-t2');
-    if(!t1 || !t2) return;
-    
-    t1.innerHTML = '<option value="">Select Team 1...</option>';
-    t2.innerHTML = '<option value="">Select Team 2...</option>';
-    
-    // শুধুমাত্র যারা পেমেন্ট করে Approved হয়েছে বা Free-তে Approved হয়েছে
-    const approvedTeams = State.teams.filter(t => t.status === 'Approved' || t.status.includes('Paid'));
-    
-    approvedTeams.forEach(t => {
-        const opt = `<option value="${t.id}">${t.name}</option>`;
-        t1.innerHTML += opt;
-        t2.innerHTML += opt;
-    });
-}
 
-// ম্যানুয়াল ম্যাচ তৈরি করার কোর ফাংশন
-window.createManualMatch = async function() {
-    const t1Id = document.getElementById('manual-match-t1').value;
-    const t2Id = document.getElementById('manual-match-t2').value;
-    const stage = document.getElementById('manual-match-stage').value;
+        function populateManualMatchSelects() {
+            const t1 = document.getElementById('manual-match-t1');
+            const t2 = document.getElementById('manual-match-t2');
+            if(!t1 || !t2) return;
+            
+            t1.innerHTML = '<option value="">Select Team 1...</option>';
+            t2.innerHTML = '<option value="">Select Team 2...</option>';
+            
+            const approvedTeams = State.teams.filter(t => t.status === 'Approved' || t.status.includes('Paid'));
+            
+            approvedTeams.forEach(t => {
+                const opt = `<option value="${t.id}">${t.name}</option>`;
+                t1.innerHTML += opt;
+                t2.innerHTML += opt;
+            });
+        }
 
-    if(!t1Id || !t2Id) return showToast("দয়া করে দুটি দল নির্বাচন করুন", true);
-    if(t1Id === t2Id) return showToast("দুটি দল একই হতে পারে না!", true);
+        window.createManualMatch = async function() {
+            const t1Id = document.getElementById('manual-match-t1').value;
+            const t2Id = document.getElementById('manual-match-t2').value;
+            const stage = document.getElementById('manual-match-stage').value;
 
-    const team1 = State.teams.find(t => t.id === t1Id);
-    const team2 = State.teams.find(t => t.id === t2Id);
+            if(!t1Id || !t2Id) return showToast("দয়া করে দুটি দল নির্বাচন করুন", true);
+            if(t1Id === t2Id) return showToast("দুটি দল একই হতে পারে না!", true);
 
-    const mId = 'M' + Date.now();
-    await safeFirebaseCall(set(ref(db, `matches/${mId}`), { 
-        id: mId, team1: team1, team2: team2, stage: stage, status: 'Scheduled', time: State.settings.date 
-    }));
+            const team1 = State.teams.find(t => t.id === t1Id);
+            const team2 = State.teams.find(t => t.id === t2Id);
 
-    showToast("ম্যানুয়াল ম্যাচ সফলভাবে তৈরি হয়েছে!");
-    document.getElementById('manual-match-t1').value = '';
-    document.getElementById('manual-match-t2').value = '';
-};
+            const mId = 'M' + Date.now();
+            await safeFirebaseCall(set(ref(db, `matches/${mId}`), { 
+                id: mId, team1: team1, team2: team2, stage: stage, status: 'Scheduled', time: State.settings.date 
+            }));
+
+            showToast("ম্যানুয়াল ম্যাচ সফলভাবে তৈরি হয়েছে!");
+            document.getElementById('manual-match-t1').value = '';
+            document.getElementById('manual-match-t2').value = '';
+        };
+
         // TABS & APP NAVIGATION
         window.switchTab = function(mode, tabId) {
             document.querySelectorAll(`.${mode === 'public' ? 'pub' : 'adm'}-tab-btn`).forEach(b => { 
@@ -1873,7 +2332,6 @@ window.createManualMatch = async function() {
             contentPane.classList.remove('hidden'); 
             contentPane.classList.add('block');
             
-            // Re-enter Score Engine logic (Admin return Path)
             if (mode === 'admin' && tabId === 'score') {
                 if (State.liveMatch) {
                     document.getElementById('score-setup-panel').classList.add('hidden');
@@ -1888,20 +2346,38 @@ window.createManualMatch = async function() {
         window.showLoginModal = () => document.getElementById('loginModal').classList.remove('hidden');
         window.hideLoginModal = () => document.getElementById('loginModal').classList.add('hidden');
         
-        // লগইনের পর সরাসরি লাইভ ম্যাচে যাওয়ার লজিক
-        window.performLogin = () => { 
-            if(document.getElementById('login-user').value === 'admin' && document.getElementById('login-pass').value === 'admin') { 
-                State.isLoggedIn = true; 
-                hideLoginModal(); 
-                document.getElementById('loginBtn').classList.add('hidden'); 
-                document.getElementById('logoutBtn').classList.remove('hidden'); 
-                document.getElementById('adminToggleBtn').classList.remove('hidden'); 
-                toggleView('admin'); 
-                showToast(State.liveMatch ? "Logged in! Resuming Live Match..." : "Logged in as Admin"); 
-            } else {
-                showToast("Invalid Credentials", true); 
-            }
-        };
+      window.performLogin = () => { 
+    if(document.getElementById('login-user').value === 'admin' && document.getElementById('login-pass').value === 'admin') { 
+        State.isLoggedIn = true; 
+        hideLoginModal(); 
+        document.getElementById('loginBtn').classList.add('hidden'); 
+        document.getElementById('logoutBtn').classList.remove('hidden'); 
+        document.getElementById('adminToggleBtn').classList.remove('hidden'); 
+        toggleView('admin'); 
+        
+        // --- NEW: Theme Changed to Deep Violet ---
+        document.body.classList.remove('theme-premium');
+        document.body.classList.add('theme-violet');
+        
+        showToast(State.liveMatch ? "Logged in! Resuming Live Match..." : "Logged in as Admin"); 
+    } else {
+        showToast("Invalid Credentials", true); 
+    }
+};
+
+window.logout = () => { 
+    State.isLoggedIn = false; 
+    document.getElementById('loginBtn').classList.remove('hidden'); 
+    document.getElementById('logoutBtn').classList.add('hidden'); 
+    document.getElementById('adminToggleBtn').classList.add('hidden'); 
+    toggleView('public'); 
+    
+    // --- NEW: Theme Changed Back to Standard Premium ---
+    document.body.classList.remove('theme-violet');
+    document.body.classList.add('theme-premium');
+    
+    showToast("Logged out"); 
+};
 
         window.logout = () => { 
             State.isLoggedIn = false; 
@@ -1921,7 +2397,6 @@ window.createManualMatch = async function() {
                 document.getElementById('adminNav').classList.remove('hidden'); 
                 document.getElementById('adminNav').classList.add('flex'); 
                 
-                // Admin View এ গেলে যদি ম্যাচ লাইভ থাকে, সরাসরি Score Entry ট্যাবে নিয়ে যাবে
                 if (State.liveMatch) switchTab('admin', 'score');
                 else switchTab('admin', 'settings'); 
             } 
@@ -1932,7 +2407,6 @@ window.createManualMatch = async function() {
                 document.getElementById('public-view').classList.remove('hidden'); 
                 document.getElementById('publicNav').classList.remove('hidden'); 
                 
-                // Public View এ গেলে যদি ম্যাচ লাইভ থাকে, সরাসরি Live Score ট্যাবে নিয়ে যাবে
                 if (State.liveMatch) switchTab('public', 'live');
                 else switchTab('public', 'entry'); 
             }
@@ -1940,22 +2414,44 @@ window.createManualMatch = async function() {
 
         initFirebase();
         
-        // --- DIRECT PDF DOWNLOAD LOGIC ---
+ 
+        window.downloadSummaryPDF = function() {
+            const element = document.querySelector('#summary-view .a4-container');
+            const btn = document.getElementById('summary-download-btn');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Downloading...';
+            btn.disabled = true;
 
-window.downloadReceiptPDF = function() {
-    const element = document.querySelector('#receipt-view .a4-container');
+            const opt = {
+                margin:       0,
+                filename:     `Match_Summary_${Date.now()}.pdf`,
+                image:        { type: 'jpeg', quality: 1 },
+                html2canvas:  { scale: 3, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showToast("Summary PDF Downloaded Successfully!");
+            });
+        };
+        
+       window.downloadReceiptPDF = function() {
+    // TARGET THE NEW WRAPPER
+    const element = document.querySelector('#pdf-render-target');
     const btn = document.getElementById('receipt-download-btn');
     const originalText = btn.innerHTML;
     
-    // লোডিং ইফেক্ট দেখানো
     btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Downloading...';
     btn.disabled = true;
 
     const opt = {
         margin:       0,
-        filename:     `Receipt_${document.getElementById('r-regNo').innerText}.pdf`,
-        image:        { type: 'jpeg', quality: 1 }, // বেস্ট কোয়ালিটি
-        html2canvas:  { scale: 3, useCORS: true }, // Scale 3 দিলে লেখা একদম ফাটবে না, ঝকঝকে আসবে
+        filename:     `Receipt_Rules_${document.getElementById('r-regNo').innerText}.pdf`,
+        image:        { type: 'jpeg', quality: 1 }, 
+        html2canvas:  { scale: 3, useCORS: true }, 
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
@@ -1965,30 +2461,389 @@ window.downloadReceiptPDF = function() {
         showToast("PDF Downloaded Successfully!");
     });
 };
+        
+        // ১. Participants লিস্ট তৈরি করার ফাংশন
+window.renderPublicParticipants = function() {
+    const list = document.getElementById('public-participants-list');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    // শুধুমাত্র যারা Approved বা যাদের পেমেন্ট হয়েছে, তাদের দেখাবে (Disqualified দের দেখাবে না)
+    const validTeams = State.teams.filter(t => t.status === 'Approved' || t.status.includes('Paid'));
+    
+    if(validTeams.length === 0) {
+        list.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-500 font-bold">No teams registered yet.</td></tr>`;
+        return;
+    }
 
-window.downloadSummaryPDF = function() {
-    const element = document.querySelector('#summary-view .a4-container');
-    const btn = document.getElementById('summary-download-btn');
-    const originalText = btn.innerHTML;
+    validTeams.forEach(t => {
+        list.innerHTML += `
+            <tr class="border-b hover:bg-gray-50 transition">
+                <td class="p-3 font-bold text-gray-700">${t.regNo || t.id}</td>
+                <td class="p-3 font-bold text-emerald-700 uppercase">${t.name}</td>
+                <td class="p-3 text-center space-x-2 whitespace-nowrap">
+                    <button onclick="downloadDirectReceipt('${t.id}')" class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded text-xs font-bold hover:bg-indigo-100 transition inline-flex items-center gap-1 shadow-sm">
+                        <i class="ph ph-receipt"></i> রিসিপ্ট
+                    </button>
+                    <button onclick="downloadDirectRules('${t.id}')" class="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded text-xs font-bold hover:bg-amber-100 transition inline-flex items-center gap-1 shadow-sm">
+                        <i class="ph ph-scroll"></i> নিয়মাবলী
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+};
+
+        // ১. Participants লিস্ট তৈরি করার ফাংশন
+window.renderPublicParticipants = function() {
+    const list = document.getElementById('public-participants-list');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    // শুধুমাত্র যারা Approved বা যাদের পেমেন্ট হয়েছে, তাদের দেখাবে
+    const validTeams = State.teams.filter(t => t.status === 'Approved' || t.status.includes('Paid'));
+    
+    if(validTeams.length === 0) {
+        list.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-gray-500 font-bold">No teams registered yet.</td></tr>`;
+        return;
+    }
+
+    validTeams.forEach(t => {
+        list.innerHTML += `
+            <tr class="border-b hover:bg-gray-50 transition">
+                <td class="p-3 font-bold text-gray-700">${t.regNo || t.id}</td>
+                <td class="p-3 font-bold text-emerald-700 uppercase">${t.name}</td>
+                <td class="p-3 text-center space-x-2 whitespace-nowrap">
+                    <button onclick="downloadDirectReceipt('${t.id}')" class="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded text-xs font-bold hover:bg-indigo-100 transition inline-flex items-center gap-1 shadow-sm">
+                        <i class="ph ph-receipt"></i> রিসিপ্ট
+                    </button>
+                    <button onclick="downloadDirectRules('${t.id}')" class="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1.5 rounded text-xs font-bold hover:bg-amber-100 transition inline-flex items-center gap-1 shadow-sm">
+                        <i class="ph ph-scroll"></i> নিয়মাবলী
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+};
+
+// ২. সরাসরি রিসিপ্ট ডাউনলোড ফাংশন (Background)
+window.downloadDirectReceipt = function(teamId) {
+    const team = State.teams.find(t => t.id === teamId);
+    if(!team) return;
+    showToast("Generating Receipt PDF...");
+    
+    let playersHtml = '';
+    team.players.forEach((p, i) => playersHtml += `<div><span class="text-gray-500 text-xs">${i+1}.</span> ${p}</div>`);
+    
+    const container = document.createElement('div');
+    container.style.position = 'absolute'; container.style.left = '-9999px';
+    container.innerHTML = `
+    <div class="a4-container font-serif bg-white text-black" style="width:210mm; min-height:297mm; padding:20mm; position:relative;">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold tracking-wider mb-2 uppercase">Modern Sporting Club</h1>
+            <p class="text-sm font-medium">Itinda Road, Dhaltitha, Basirhat, North 24 Parganas</p>
+            <hr class="border-t-2 border-black mt-4 mb-1"><hr class="border-t border-black">
+        </div>
+        <div class="flex justify-between items-center mb-8">
+            <div class="font-bold text-lg border-2 border-black px-3 py-1">Registration No: ${team.regNo || team.id}</div>
+            <div class="font-semibold text-md">Date: ${new Date(team.timestamp || Date.now()).toLocaleDateString()}</div>
+        </div>
+        <div class="space-y-4 mb-8 text-[15px]">
+            <div class="flex"><span class="w-48 font-bold">Team Name:</span><span class="flex-1 border-b border-dashed border-gray-400 uppercase font-bold">${team.name}</span></div>
+            <div class="flex"><span class="w-48 font-bold">Leader Name:</span><span class="flex-1 border-b border-dashed border-gray-400">${team.head}</span></div>
+            <div class="flex"><span class="w-48 font-bold">Phone No.:</span><span class="flex-1 border-b border-dashed border-gray-400 font-mono">${team.phone}</span></div>
+            <div class="flex"><span class="w-48 font-bold">Address:</span><span class="flex-1 border-b border-dashed border-gray-400">${team.address}</span></div>
+        </div>
+        <div class="mb-8">
+            <h3 class="font-bold mb-3 border-b border-black pb-1 inline-block">Registered Players</h3>
+            <div class="grid grid-cols-2 gap-x-8 gap-y-2 text-[15px]">${playersHtml}</div>
+        </div>
+        <div class="mt-auto absolute bottom-12 left-0 w-full px-[20mm]">
+            <div class="text-xs font-bold text-gray-500 uppercase tracking-widest border-t border-gray-300 pt-4 text-center">Authorized System Generated Document</div>
+        </div>
+    </div>`;
+    document.body.appendChild(container);
+
+    html2pdf().set({ margin: 0, filename: `Receipt_${team.regNo || team.id}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(container.firstElementChild).save().then(() => {
+        document.body.removeChild(container); showToast("Receipt Downloaded!");
+    });
+};
+
+// ৩. সরাসরি নিয়মাবলী (Rules) ডাউনলোড ফাংশন (আপনার স্পেসিফিক ফরম্যাট অনুযায়ী)
+window.downloadDirectRules = function(teamId) {
+    const team = State.teams.find(t => t.id === teamId);
+    if(!team) return;
+    showToast("Generating Rules PDF...");
+
+    // ডাটাবেস থেকে ডায়নামিক রুলস নিয়ে আসা
+    const defaultRules = "1. ম্যাচ শুরু হওয়ার অন্তত ৩০ মিনিট আগে মাঠে রিপোর্ট করতে হবে।\n2. আম্পায়ারের সিদ্ধান্তই চূড়ান্ত বলে গণ্য হবে, কোনো তর্কে জড়ানো যাবে না।\n3. নির্ধারিত ওভারের মধ্যে খেলা শেষ করতে হবে, স্লো ওভার রেটের জন্য পেনাল্টি থাকবে।\n4. কমিটি যেকোনো সময় নিয়মাবলি পরিবর্তন বা পরিমার্জন করার অধিকার রাখে।";
+    const rulesText = State.settings.matchRules || defaultRules;
+    const rulesHtml = rulesText.split('\n').filter(r => r.trim() !== '').map(r => `<li class="mb-2">${r}</li>`).join('');
+
+    const container = document.createElement('div');
+    container.style.position = 'absolute'; container.style.left = '-9999px';
+    container.innerHTML = `
+    <div class="a4-container font-serif bg-white text-black" style="width:210mm; min-height:297mm; padding:20mm; position:relative;">
+        <div class="text-center mb-6">
+            <h1 class="text-3xl font-bold tracking-wider mb-2 uppercase">Modern Sporting Club</h1>
+            <p class="text-sm font-medium">Itinda Road, Dhaltitha, Basirhat, North 24 Parganas</p>
+            <hr class="border-t-2 border-black mt-4 mb-1"><hr class="border-t border-black">
+        </div>
+        
+        <div class="flex justify-between items-center mb-6 font-bold text-[15px]">
+            <div>Date: ${new Date(team.timestamp || Date.now()).toLocaleDateString()}</div>
+            <div>Team Reg. No: ${team.regNo || team.id}</div>
+        </div>
+
+        <div class="mb-6 font-bold text-[15px] leading-relaxed text-left">
+            <p>For,</p>
+            <p class="uppercase text-lg border-b border-dashed border-gray-400 inline-block pr-4 pb-1 mb-1">${team.name}</p>
+            <p class="font-normal text-gray-700 leading-tight">${team.address}</p>
+        </div>
+
+        <div class="text-center mb-4 bg-gray-100 py-2 border-y border-black">
+            <h2 class="text-lg font-bold tracking-wider uppercase">টুর্নামেন্টের নিয়মাবলি ও ঘোষণাপত্র</h2>
+        </div>
+
+        <div class="mb-12 text-left min-h-[120mm]">
+            <ul class="list-decimal pl-6 text-[15px] space-y-3 text-gray-800 font-semibold">
+                ${rulesHtml}
+            </ul>
+        </div>
+
+        <div class="absolute bottom-12 left-0 w-full px-[20mm]">
+            <div class="flex justify-between items-end border-t-2 border-gray-800 pt-6">
+                <div class="text-sm font-bold text-gray-800 w-2/3 pr-4 leading-relaxed text-left">
+                    ঘোষণাপত্র: আমি উপরোক্ত সমস্ত নিয়মাবলি পড়িয়াছি ও বুঝিয়াছি। আমার দলের পক্ষ হইতে আমি এই নিয়মাবলি সম্পূর্ণভাবে মানিয়া চলিতে বাধ্য থাকিব।
+                </div>
+                <div class="text-center w-1/3">
+                    <div class="border-b-2 border-dashed border-gray-800 w-full mb-2"></div>
+                    <span class="text-xs font-bold uppercase tracking-widest block">Team Leader Signature</span>
+                </div>
+            </div>
+            <div class="mt-4 pt-4 text-[10px] font-bold text-gray-500 uppercase tracking-widest border-t border-gray-300 text-center">
+                Authorized System Generated Document
+            </div>
+        </div>
+    </div>`;
+    document.body.appendChild(container);
+
+    // PDF ডাউনলোড এক্সিকিউশন
+    html2pdf().set({ margin: 0, filename: `Rules_${team.regNo || team.id}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 3 }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(container.firstElementChild).save().then(() => {
+        document.body.removeChild(container); showToast("Rules PDF Downloaded!");
+    });
+};
+        
+        
+        window.downloadRulesPDF = function(btnElement) {
+    const element = document.querySelector('#rules-pdf-content');
+    const originalText = btnElement.innerHTML;
+    
+    // Firebase থেকে অ্যাডমিনের সেভ করা Rules PDF-এ বসানো
+    const rulesText = State.settings.rules || "কোনো নিয়মাবলি সেট করা হয়নি।";
+    document.getElementById('r-dynamic-rules').innerText = rulesText;
     
     // লোডিং ইফেক্ট দেখানো
-    btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Downloading...';
-    btn.disabled = true;
+    btnElement.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Downloading...';
+    btnElement.disabled = true;
 
+    // PDF অপশন (Registration Receipt-এর হুবহু সেটিংস)
     const opt = {
         margin:       0,
-        filename:     `Match_Summary_${Date.now()}.pdf`,
+        filename:     `Tournament_Rules.pdf`,
         image:        { type: 'jpeg', quality: 1 },
-        html2canvas:  { scale: 3, useCORS: true },
+        html2canvas:  { scale: 3, useCORS: true }, 
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
+    // এলিমেন্টটিকে সাময়িকভাবে ভিজিবল করে পিডিএফ বানানো
+    const rulesView = document.getElementById('rules-pdf-view');
+    rulesView.classList.remove('hidden');
+    rulesView.style.position = 'absolute';
+    rulesView.style.left = '-9999px';
+
     html2pdf().set(opt).from(element).save().then(() => {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        showToast("Summary PDF Downloaded Successfully!");
+        rulesView.classList.add('hidden');
+        rulesView.style.position = '';
+        rulesView.style.left = '';
+        btnElement.innerHTML = originalText;
+        btnElement.disabled = false;
+        showToast("Rules PDF Downloaded Successfully!");
     });
 };
+        
+        // --- UTILITIES FOR PDF ---
+window.formatToDDMMYYYY = function(timestamp) {
+    const d = timestamp ? new Date(timestamp) : new Date();
+    return d.getDate().toString().padStart(2, '0') + '/' + 
+           (d.getMonth() + 1).toString().padStart(2, '0') + '/' + 
+           d.getFullYear();
+};
+
+window.numberToWords = function(num) {
+    if(num === 0) return 'Zero Only';
+    const a = ['','One ','Two ','Three ','Four ', 'Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+    const b = ['', '', 'Twenty','Thirty','Forty','Fifty', 'Sixty','Seventy','Eighty','Ninety'];
+    if ((num = num.toString()).length > 9) return 'Overflow';
+    let n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+    if (!n) return ''; let str = '';
+    str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'Crore ' : '';
+    str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'Lakh ' : '';
+    str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'Thousand ' : '';
+    str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'Hundred ' : '';
+    str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'Only' : 'Only';
+    return str.trim();
+};
+        
+     // PAYMENT VERIFICATION & PDF GENERATION
+        window.verifyPayment = async function() {
+            const btn = document.getElementById('verify-btn');
+            const originalText = btn.innerHTML;
+            
+            // বাটনে Verifying... লোডিং অ্যানিমেশন দেখানো
+            btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Verifying Payment...';
+            btn.disabled = true;
+
+            const team = State.pendingRegistration;
+            if(!team) {
+                showToast("Registration data not found. Please try again.", true);
+                btn.innerHTML = originalText; btn.disabled = false;
+                return;
+            }
+
+            // 1. Firebase-এ স্ট্যাটাস আপডেট করে "Paid" করা
+            team.status = 'Approved (Paid)';
+            await safeFirebaseCall(update(ref(db, `teams/${team.regNo}`), { status: team.status }));
+
+            // 2. কিছুটা ডিলের (Delay) পর PDF পেজে ডেটা পাঠানো
+            setTimeout(() => {
+                const feePaid = parseInt(State.settings.entryFee) || 0;
+                
+                // PAGE 1 (Receipt) Data
+                document.getElementById('r-regNo').innerText = team.regNo;
+                // যদি formatToDDMMYYYY ফাংশন থাকে তবে সেটি ব্যবহার করবে, না হলে ডিফল্ট ডেট
+                document.getElementById('r-date').innerText = typeof formatToDDMMYYYY === 'function' ? formatToDDMMYYYY(team.timestamp) : new Date(team.timestamp).toLocaleDateString();
+                document.getElementById('r-teamName').innerText = team.name;
+                document.getElementById('r-teamHead').innerText = team.head;
+                document.getElementById('r-phone').innerText = team.phone;
+                document.getElementById('r-address').innerText = team.address;
+                
+                const feeEl = document.getElementById('r-fee');
+                if(feeEl) feeEl.innerText = feePaid;
+                
+                const feeWordsEl = document.getElementById('r-fee-words');
+                if(feeWordsEl && typeof numberToWords === 'function') feeWordsEl.innerText = numberToWords(feePaid);
+                
+                const feeContainer = document.getElementById('r-fee-container');
+                if(feeContainer) feeContainer.style.display = 'flex'; 
+                
+                // QR কোড হাইড করা (যদি থাকে)
+                const qrContainer = document.getElementById('r-qr-container');
+                if(qrContainer) qrContainer.style.display = 'block';
+                
+                // Players List
+                const rp = document.getElementById('r-playersList'); rp.innerHTML = '';
+                team.players.forEach((p, i) => rp.innerHTML += `<div><span class="text-gray-500 text-xs">${i+1}.</span> ${p}</div>`);
+                
+                // PAGE 2 (Rules) Data - যদি আপনার কোডে ২য় পেজ অ্যাড করা থাকে
+                const r2Reg = document.getElementById('r2-regNo');
+                if(r2Reg) {
+                    r2Reg.innerText = team.regNo;
+                    document.getElementById('r2-date').innerText = document.getElementById('r-date').innerText;
+                    document.getElementById('r2-teamName').innerText = team.name;
+                    document.getElementById('r2-address').innerText = team.address;
+                    document.getElementById('r2-teamHead-sign').innerText = team.head;
+                }
+
+                // 3. UI/Views পরিবর্তন করা (Payment থেকে PDF এ যাওয়া)
+                document.getElementById('payment-redirect-view').classList.add('hidden');
+                document.getElementById('main-header').classList.add('hidden');
+                document.getElementById('public-view').classList.add('hidden');
+                document.getElementById('receipt-view').style.display = 'block';
+                window.scrollTo(0,0);
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                
+                showToast("Payment Verified Successfully! Please download your receipt.");
+                
+                // 4. ফর্ম রিসেট করা
+                document.getElementById('registrationForm').reset();
+                State.formPlayers = Array(7).fill('');
+                renderPlayersForm('reg');
+                
+                // QR টাইমার বন্ধ করা
+                if(typeof qrTimerInterval !== 'undefined') clearInterval(qrTimerInterval);
+                
+            }, 1500); // 1.5 সেকেন্ডের রিয়ালিস্টিক ভেরিফিকেশন ডিলে
+        };
+     
+     
+     window.renderBowlerRules = function() {
+            const container = document.getElementById('bowler-rules-container');
+            if(!container) return;
+            container.innerHTML = '';
+            let calcText = [];
+            let totalOvers = 0;
+            let hasUnlimited = false;
+
+            // যদি আগে থেকে কোনো রুল না থাকে, তবে ডিফল্ট রুল দেখাবে
+            const rules = State.settings.bowlerRules || [{bowlers: 3, overs: 2}, {bowlers: 2, overs: 1}];
+
+            rules.forEach((r, i) => {
+                const bCount = r.bowlers;
+                const oLimit = r.overs;
+                
+                if(oLimit === 'unlimited') {
+                    calcText.push(`${bCount} জন × নো লিমিট`);
+                    hasUnlimited = true;
+                } else {
+                    calcText.push(`${bCount}×${oLimit}`);
+                    totalOvers += (parseInt(bCount) * parseInt(oLimit));
+                }
+
+                container.innerHTML += `
+                <div class="flex gap-2 items-center bg-white p-2 rounded border shadow-sm">
+                    <select onchange="updateBowlerRule(${i}, 'bowlers', this.value)" class="input-field !py-1 !px-2 text-sm flex-1">
+                        ${[1,2,3,4,5,6,7,8,9,10,11].map(n => `<option value="${n}" ${bCount == n ? 'selected' : ''}>${n} জন বোলার</option>`).join('')}
+                    </select>
+                    <i class="ph ph-arrow-right text-gray-400"></i>
+                    <select onchange="updateBowlerRule(${i}, 'overs', this.value)" class="input-field !py-1 !px-2 text-sm flex-1">
+                        ${[1,2,3,4,5,6,7,8,9,10].map(n => `<option value="${n}" ${oLimit == n ? 'selected' : ''}>${n} ওভার</option>`).join('')}
+                        <option value="unlimited" ${oLimit === 'unlimited' ? 'selected' : ''}>নো লিমিট</option>
+                    </select>
+                    <button type="button" onclick="removeBowlerRuleRow(${i})" class="bg-red-100 text-red-600 p-1.5 rounded hover:bg-red-200"><i class="ph ph-trash"></i></button>
+                </div>`;
+            });
+
+            document.getElementById('bowler-rules-calc').innerText = "হিসাব: " + (calcText.join(' + ') || '0');
+            document.getElementById('bowler-rules-total').innerText = hasUnlimited ? 'আনলিমিটেড' : totalOvers;
+            
+            // অটোমেটিকভাবে "Total Overs / Match" আপডেট করা
+            if(!hasUnlimited && document.getElementById('set-totalOvers')) {
+                document.getElementById('set-totalOvers').value = totalOvers;
+                State.settings.totalOvers = totalOvers;
+            }
+            State.settings.bowlerRules = rules;
+        };
+
+        window.addBowlerRuleRow = function() {
+            State.settings.bowlerRules = State.settings.bowlerRules || [];
+            State.settings.bowlerRules.push({bowlers: 1, overs: 1});
+            renderBowlerRules();
+        };
+
+        window.removeBowlerRuleRow = function(index) {
+            State.settings.bowlerRules.splice(index, 1);
+            renderBowlerRules();
+        };
+
+        window.updateBowlerRule = function(index, field, value) {
+            State.settings.bowlerRules[index][field] = value;
+            renderBowlerRules();
+        };
+     
+        
     </script>
 </body>
 </html>
