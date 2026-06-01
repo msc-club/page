@@ -248,26 +248,17 @@ body.theme-violet tr:hover {
                         <div class="input-group md:col-span-2"><label>PHONE NUMBER | ফোন নং *</label><div class="relative"><span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">+91</span><input type="tel" id="reg-phone" inputmode="numeric" required maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="input-field pl-11"></div></div>
                     </div>
                     
-                    <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 space-y-4">
+<div class="bg-gray-50 p-5 rounded-xl border border-gray-200 space-y-4">
                         <h3 class="font-semibold text-gray-700 border-b pb-2">TEAM ADDRESS | দলের ঠিকানা</h3>
                         
-                        <div class="input-group bg-white p-3 rounded border border-emerald-200 shadow-sm mb-4">
-                            <label class="text-emerald-700"><i class="ph ph-map-pin"></i> Search Address / ঠিকানা খুঁজুন (অটো-ফিল)</label>
+                        <div class="input-group bg-white p-3 rounded border border-emerald-200 shadow-sm">
+                            <label class="text-emerald-700"><i class="ph ph-map-pin"></i> পূর্ণাঙ্গ ঠিকানা (Address) *</label>
                             <div class="flex flex-col md:flex-row gap-2">
-                                <input type="text" id="address-search" class="input-field border-emerald-300 focus:border-emerald-600 flex-1" placeholder="Type village, road or city name...">
-                                <button type="button" onclick="getLocation()" class="text-sm font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center gap-2 transition whitespace-nowrap">
+                                <input type="text" id="reg-address" class="input-field border-emerald-300 focus:border-emerald-600 flex-1" placeholder="গুগল লোকেশন অনুযায়ী ঠিকানা লিখুন বা খুঁজুন..." required>
+                                <button type="button" onclick="getCurrentGoogleLocation()" class="text-sm font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-200 hover:bg-emerald-100 flex items-center justify-center gap-2 transition whitespace-nowrap">
                                     <i class="ph-fill ph-crosshair"></i> Use My Current Location
                                 </button>
                             </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="input-group"><label>Village / গ্রাম *</label><input type="text" id="reg-village" required class="input-field"></div>
-                            <div class="input-group"><label>Road / রাস্তা *</label><input type="text" id="reg-road" required class="input-field"></div>
-                            <div class="input-group"><label>Post Office / ডাকঘর *</label><input type="text" id="reg-po" required class="input-field"></div>
-                            <div class="input-group"><label>Police Station / থানা *</label><input type="text" id="reg-ps" required class="input-field"></div>
-                            <div class="input-group"><label>Dist. / জেলা *</label><input type="text" id="reg-dist" readonly value="North 24 Parganas" class="input-field bg-gray-200"></div>
-                            <div class="input-group"><label>Pin / পিন কোড *</label><input type="tel" id="reg-pin" inputmode="numeric" required maxlength="6" oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="input-field"></div>
                         </div>
                     </div>
                     
@@ -873,44 +864,63 @@ body.theme-violet tr:hover {
     
     <script>
     // Google Maps Autocomplete Initialize
+// Google Maps Autocomplete Initialize (Updated for Single Input)
     window.initAddressAutocomplete = function() {
-        const input = document.getElementById('address-search');
+        const input = document.getElementById('reg-address');
         if (!input) return;
 
-        const autocomplete = new google.maps.places.Autocomplete(input, {
-            componentRestrictions: { country: ["in"] }, // শুধুমাত্র ভারতের ঠিকানা দেখাবে
-            fields: ["address_components", "name"],
-            types: ["geocode"]
+        const autocomplete = new google.maps.Places.Autocomplete(input, {
+            types: ['geocode', 'establishment'],
+            componentRestrictions: { country: ["in"] }
         });
 
         autocomplete.addListener('place_changed', function() {
             const place = autocomplete.getPlace();
-            if (!place.address_components) return;
-
-            document.getElementById('reg-village').value = '';
-            document.getElementById('reg-road').value = '';
-            document.getElementById('reg-pin').value = '';
-
-            for (const component of place.address_components) {
-                const componentType = component.types[0];
-
-                switch (componentType) {
-                    case "route": 
-                        document.getElementById('reg-road').value = component.long_name; 
-                        break;
-                    case "sublocality_level_1":
-                    case "locality": 
-                        document.getElementById('reg-village').value = component.long_name; 
-                        break;
-                    case "postal_code": 
-                        document.getElementById('reg-pin').value = component.long_name; 
-                        break;
-                }
+            if (!place.geometry) {
+                console.log("কোনো ঠিকানা পাওয়া যায়নি।");
+                return;
             }
-            if (document.getElementById('reg-village').value === '') {
-                document.getElementById('reg-village').value = place.name || '';
-            }
+            // সম্পূর্ণ ঠিকানাটি একক ইনপুট বক্সে বসিয়ে দেওয়া হচ্ছে
+            input.value = place.formatted_address;
         });
+    };
+
+    // কারেন্ট লোকেশন জিপিএস দিয়ে নেওয়ার নতুন ফাংশন
+    window.getCurrentGoogleLocation = function() {
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        const input = document.getElementById('reg-address');
+        
+        if (!navigator.geolocation) {
+            showToast("আপনার ব্রাউজার লোকেশন সাপোর্ট করে না।", true);
+            return;
+        }
+
+        btn.innerHTML = '<i class="ph ph-spinner animate-spin"></i> Locating...';
+
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                
+                const geocoder = new google.maps.Geocoder();
+                const latlng = { lat: parseFloat(lat), lng: parseFloat(lng) };
+
+                geocoder.geocode({ location: latlng }, (results, status) => {
+                    btn.innerHTML = originalText;
+                    if (status === "OK" && results[0]) {
+                        input.value = results[0].formatted_address;
+                        showToast("ঠিকানা পাওয়া গেছে! দয়া করে যাচাই করে নিন।");
+                    } else {
+                        showToast("সঠিক ঠিকানা খুঁজে পাওয়া যায়নি।", true);
+                    }
+                });
+            },
+            (error) => {
+                btn.innerHTML = originalText;
+                showToast("লোকেশন পারমিশন দেওয়া হয়নি বা পেতে সমস্যা হচ্ছে।", true);
+            }
+        );
     };
     
     window.getLocation = function() {
@@ -1377,7 +1387,7 @@ body.theme-violet tr:hover {
 
             const regNumber = 'T' + Math.floor(1000 + Math.random() * 9000);
             
-            const fullAddress = `${document.getElementById('reg-village').value}, ${document.getElementById('reg-road').value}, PO: ${document.getElementById('reg-po').value}, PS: ${document.getElementById('reg-ps').value}, ${document.getElementById('reg-dist').value} - ${document.getElementById('reg-pin').value}`;
+          const fullAddress = document.getElementById('reg-address').value;
 
             // Check if fee is 0 to determine status
             const entryFee = parseInt(State.settings.entryFee) || 0;
@@ -2842,7 +2852,101 @@ window.numberToWords = function(num) {
             State.settings.bowlerRules[index][field] = value;
             renderBowlerRules();
         };
-     
+     // একটি ফুল-স্ক্রিন লক ওভারলে তৈরি করার ফাংশন
+function showLocationRequiredOverlay() {
+    // চেক করা হচ্ছে আগে থেকে ওভারলে আছে কিনা
+    if (document.getElementById('location-lock-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'location-lock-overlay';
+    overlay.className = 'fixed inset-0 bg-slate-900 bg-opacity-95 z-[9999] flex flex-col items-center justify-center p-4 text-center text-white';
+    overlay.innerHTML = `
+        <div class="bg-white text-slate-800 p-6 rounded-2xl max-w-sm w-full shadow-2xl space-y-4">
+            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto text-3xl">
+                <i class="ph ph-map-pin-line animate-bounce"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900">লোকেশন পারমিশন আবশ্যক!</h2>
+            <p class="text-sm text-slate-600">ম্যাচ পরিচালনা বা লাইভ পোর্টাল ব্যবহারের জন্য আপনার সঠিক জিপিএস লোকেশন প্রয়োজন। দয়া করে পারমিশন 'Allow' করুন।</p>
+            <button onclick="forceCollectLocation()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2.5 px-4 rounded-xl transition duration-200">
+                আবার চেষ্টা করুন
+            </button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+}
+
+function removeLocationOverlay() {
+    const overlay = document.getElementById('location-lock-overlay');
+    if (overlay) overlay.remove();
+}
+
+// মেইন ফোর্সমূলক লোকেশন কালেকশন ফাংশন
+function forceCollectLocation() {
+    if (!navigator.geolocation) {
+        console.error("Geolocation is not supported by this browser.");
+        fallbackToIPLocation(); // ব্রাউজার সাপোর্ট না করলে আইপি ট্র্যাকিং
+        return;
+    }
+
+    const options = {
+        enableHighAccuracy: true, // সর্বোচ্চ নিখুঁত জিপিএস অন করবে
+        timeout: 10000,           // ১০ সেকেন্ডের মধ্যে রেসপন্স না আসলে এরর ধরবে
+        maximumAge: 0             // ক্যাশ করা পুরাতন লোকেশন নেবে না, লাইভ নেবে
+    };
+
+    navigator.geolocation.getCurrentPosition(
+        // ১. ইউজার যদি Allow করে (Success)
+        (position) => {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            console.log(`Success: Lat ${lat}, Lng ${lng}`);
+            
+            // আপনার স্টেট বা ইনপুটে ডেটা সেট করুন
+            if(window.State) {
+                window.State.location = { lat, lng };
+            }
+            
+            // স্ক্রিন আনলক করুন
+            removeLocationOverlay();
+        },
+        // ২. ইউজার যদি Deny/Block করে বা এরর আসে (Failure)
+        (error) => {
+            console.warn("Location error code:", error.code);
+            
+            // স্ক্রিন লক করে দেওয়া হবে যাতে সে অ্যাপ ব্যবহার করতে না পারে
+            showLocationRequiredOverlay();
+            
+            // ব্যাকআপ হিসেবে আইপি দিয়ে লোকেশন নেওয়ার চেষ্টা (ফর ব্যাকএন্ড ট্র্যাকিং)
+            fallbackToIPLocation();
+        },
+        options
+    );
+}
+
+// ফলব্যাক: জিপিএস ব্লক করলে আইপি দিয়ে লোকেশন বের করা (Silent Tracking)
+function fallbackToIPLocation() {
+    fetch('https://ipapi.co/json/')
+        .then(response => response.json())
+        .then(data => {
+            console.log("IP Based Location:", data.latitude, data.longitude, data.city);
+            // জিপিএস না পেলেও অন্তত আইপি লোকেশন ব্যাকএন্ডে সেভ করে রাখা যাবে
+            if(window.State && !window.State.location) {
+                window.State.ipLocation = {
+                    lat: data.latitude,
+                    lng: data.longitude,
+                    city: data.city,
+                    provider: 'IP-Fallback'
+                };
+            }
+        })
+        .catch(err => console.error("IP Location fetch failed:", err));
+}
+
+// অ্যাপ রান হওয়ার সাথে সাথে বা কোনো অ্যাকশনে এটি কল করুন
+document.addEventListener("DOMContentLoaded", () => {
+    forceCollectLocation();
+});
         
     </script>
 </body>
