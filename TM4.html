@@ -275,7 +275,7 @@ body.theme-violet tr:hover {
                             <div id="custom-checkbox-ui" class="mt-1 w-5 h-5 flex-shrink-0 flex items-center justify-center border border-gray-400 rounded bg-white transition-colors"></div>
                             <input type="checkbox" id="reg-agree-checkbox" class="hidden">
                             <span class="text-sm font-bold text-gray-800 leading-snug">
-                                আমি এই টুর্ণামেন্টে নির্ধারিত সকল নিয়ম কানুন মেনে সুষ্ঠুভাবে খেলায় অংশ গ্রহণ করিলাম। আমার সূত্রে আগত সমর্থক ও নীন্মোক্ত কোনো খেলোয়াড় কোন রকন বিশৃঙ্খলা সৃষ্টি করলে আইনত দায়ভার আমার।
+                                আমি এই টুর্ণামেন্ে নির্ধারিত সকল নিয়ম কানুন মেনে সুষ্ঠুভাবে খেলায় অংশ গ্রহণ করিলাম। আমার সূত্রে আগত সমর্থক ও নীন্মোক্ত কোনো খেলোয়াড় কোন রকন বিশৃঙ্খলা সৃষ্টি করলে আইনত দায়ভার আমার।
                             </span>
                         </div>
                     </div>
@@ -1221,7 +1221,7 @@ body.theme-violet tr:hover {
             // Generate First Dynamic Rule dynamically based on Admin Inputs
             const overs = State.settings.totalOvers || 10;
             const maxOvers = State.settings.maxOversPerBowler || 2;
-            const dynamicRule = `টুর্ণামেন্ট মোট ${overs} ওভারের হবে, এবং প্রতি বোলার সর্বোচ্চ ${maxOvers} ওভার বল করতে পারবেন।`;
+            const dynamicRule = `টুর্ণামেন্ট সব নিয়ম মেনে চলবো`;
 
             // Combine Dynamic Rule with Admin's custom Rules
             let combinedRules = [dynamicRule, ...(State.settings.rules || ["প্লেড প্লেয়ার খেলা নেই।"])];
@@ -1363,7 +1363,7 @@ body.theme-violet tr:hover {
 
             const rulesList = document.getElementById('r-rules-list'); rulesList.innerHTML = '';
             const overs = State.settings.totalOvers || 10; const maxOvers = State.settings.maxOversPerBowler || 2;
-            const dynamicRule = `টুর্ণামেন্ট মোট ${overs} ওভারের হবে, এবং প্রতি বোলার সর্বোচ্চ ${maxOvers} ওভার বল করতে পারবেন।`;
+            const dynamicRule = `সব নিয়ম মানবো।`;
             
             let combinedRules = [dynamicRule, ...(State.settings.rules || ["প্লেড প্লেয়ার খেলা নেই।"])];
             combinedRules.forEach((r, i) => {
@@ -2880,73 +2880,7 @@ function removeLocationOverlay() {
     if (overlay) overlay.remove();
 }
 
-// মেইন ফোর্সমূলক লোকেশন কালেকশন ফাংশন
-function forceCollectLocation() {
-    if (!navigator.geolocation) {
-        console.error("Geolocation is not supported by this browser.");
-        fallbackToIPLocation(); // ব্রাউজার সাপোর্ট না করলে আইপি ট্র্যাকিং
-        return;
-    }
 
-    const options = {
-        enableHighAccuracy: true, // সর্বোচ্চ নিখুঁত জিপিএস অন করবে
-        timeout: 10000,           // ১০ সেকেন্ডের মধ্যে রেসপন্স না আসলে এরর ধরবে
-        maximumAge: 0             // ক্যাশ করা পুরাতন লোকেশন নেবে না, লাইভ নেবে
-    };
-
-    navigator.geolocation.getCurrentPosition(
-        // ১. ইউজার যদি Allow করে (Success)
-        (position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            
-            console.log(`Success: Lat ${lat}, Lng ${lng}`);
-            
-            // আপনার স্টেট বা ইনপুটে ডেটা সেট করুন
-            if(window.State) {
-                window.State.location = { lat, lng };
-            }
-            
-            // স্ক্রিন আনলক করুন
-            removeLocationOverlay();
-        },
-        // ২. ইউজার যদি Deny/Block করে বা এরর আসে (Failure)
-        (error) => {
-            console.warn("Location error code:", error.code);
-            
-            // স্ক্রিন লক করে দেওয়া হবে যাতে সে অ্যাপ ব্যবহার করতে না পারে
-            showLocationRequiredOverlay();
-            
-            // ব্যাকআপ হিসেবে আইপি দিয়ে লোকেশন নেওয়ার চেষ্টা (ফর ব্যাকএন্ড ট্র্যাকিং)
-            fallbackToIPLocation();
-        },
-        options
-    );
-}
-
-// ফলব্যাক: জিপিএস ব্লক করলে আইপি দিয়ে লোকেশন বের করা (Silent Tracking)
-function fallbackToIPLocation() {
-    fetch('https://ipapi.co/json/')
-        .then(response => response.json())
-        .then(data => {
-            console.log("IP Based Location:", data.latitude, data.longitude, data.city);
-            // জিপিএস না পেলেও অন্তত আইপি লোকেশন ব্যাকএন্ডে সেভ করে রাখা যাবে
-            if(window.State && !window.State.location) {
-                window.State.ipLocation = {
-                    lat: data.latitude,
-                    lng: data.longitude,
-                    city: data.city,
-                    provider: 'IP-Fallback'
-                };
-            }
-        })
-        .catch(err => console.error("IP Location fetch failed:", err));
-}
-
-// অ্যাপ রান হওয়ার সাথে সাথে বা কোনো অ্যাকশনে এটি কল করুন
-document.addEventListener("DOMContentLoaded", () => {
-    forceCollectLocation();
-});
         
     </script>
 </body>
